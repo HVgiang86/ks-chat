@@ -11,7 +11,12 @@
   },
   "extends": "airbnb-base",
   "rules": {
-    "linebreak-style": ["off", "windows"]
-
+    "linebreak-style": ["off", "windows"],
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "func-names": "off",
+    "no-process-exit": "off",
+    "object-shorthand": "off",
+    "class-methods-use-this": "off"
   }
 }
