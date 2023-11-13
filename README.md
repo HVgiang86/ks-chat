@@ -49,18 +49,29 @@ Following under steps for installing project
    - Prettier: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
    - Eslint: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
    - Docker (optional): https://www.docker.com/products/docker-desktop/
-1. Clone the repo
+2. Clone the repo
    ```sh
    git clone https://github.com/HVgiang86/ks-chat.git
    ```
-1. Install NPM packages
+3. Install NPM packages
    ```sh
    npm install
    ```
-1. Run project
+4. Run project
    ```js
    npm run start
    ```
+   <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Install docker compose for dev
+
+Run following command
+
+```sh
+   npm run docker/run
+```
+
+**_Now, you can connect to Redis with default port 6379 and MongoDB with default port 27017, default credentials_**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -93,4 +104,5 @@ Following steps are used to configure API documentation page (for API designer)
 
 6. You can check preview in the right side of page. Reload to reset the preview if need.
 7. Choose **menu -> File -> Save as YAML** and replace it for current **swagger.yaml** file
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- USAGE EXAMPLES -->
