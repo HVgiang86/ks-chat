@@ -36,7 +36,7 @@ tags:
   - name: Index
     description: API Documentation Page
   - name: Authentication
-    description: "Authentication APIs. Ex: login, sign up,..."
+    description: 'Authentication APIs. Ex: login, sign up,...'
   - name: Chat Management
     description: APIs using for chatting management
   - name: Profile
@@ -52,7 +52,7 @@ paths:
       summary: response API documentation page
       description: response API documentation page
       responses:
-        "200":
+        '200':
           description: success. Return html page
   /api/login:
     post:
@@ -65,19 +65,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserCredentials"
+              $ref: '#/components/schemas/UserCredentials'
       responses:
-        "200":
+        '200':
           description: JWT Access token
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LoginAccessToken"
-        "401":
-          $ref: "#/components/responses/AuthenticationFailed"
+                $ref: '#/components/schemas/LoginAccessToken'
+        '401':
+          $ref: '#/components/responses/AuthenticationFailed'
 
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /api/newchat:
     post:
@@ -94,14 +94,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserID"
+              $ref: '#/components/schemas/UserID'
       responses:
-        "200":
+        '200':
           description: response a chat room
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RoomChat"
+                $ref: '#/components/schemas/RoomChat'
 
   /api/profile:
     summary: User profile
