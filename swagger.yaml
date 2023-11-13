@@ -1,0 +1,179 @@
+#swagger.yaml
+openapi: 3.0.3
+info:
+  title: KSChat API Documentation
+  description: |-
+    ## About
+    This is a REST API application made with Express. Used for KS Chat project 
+    KS Chat is a 'Stranger Chat' mobile application that allow you to chat with an unkown stranger people.
+    So, it can help you to make friend. Have fun!
+
+    ## Features
+     * not edited yet
+     * 
+
+    This is API Server based on the OpenAPI 3.0 specification.
+
+    You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io).
+
+    Some useful links to edit Swagger document config:
+    - [Cài đặt và sử dụng Swagger UI | TOPDev](https://topdev.vn/blog/cai-dat-va-su-dung-swagger-ui/)
+    - [Swagger Documentation](https://swagger.io/docs/specification)
+    - [Note for dev.md]()
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:3000
+    description: Local Server
+
+tags:
+  - name: Index
+    description: API Documentation Page
+  - name: Authentication
+    description: "Authentication APIs. Ex: login, sign up,..."
+  - name: Chat Management
+    description: APIs using for chatting management
+  - name: Profile
+    description: APIs using for User Profile
+  - name: Image
+    description: APIs using for Image Resource
+
+paths:
+  /api/:
+    get:
+      tags:
+        - Index
+      summary: response API documentation page
+      description: response API documentation page
+      responses:
+        "200":
+          description: success. Return html page
+  /api/login:
+    post:
+      tags:
+        - Authentication
+      summary: login with credential and response an access token
+      description: login with credential and response an access token
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        "200":
+          description: JWT Access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginAccessToken"
+        "401":
+          $ref: "#/components/responses/AuthenticationFailed"
+
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/newchat:
+    post:
+      tags:
+        - Chat Management
+      summary: Request for a new chat
+      description: Request for a new chat
+      security:
+        - bearerAuth: []
+        - ApiKeyAuth: []
+
+      requestBody:
+        description: User id
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserID"
+      responses:
+        "200":
+          description: response a chat room
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomChat"
+
+  /api/profile:
+    summary: User profile
+  /signup:
+    summary: sign up
+  /login:
+    summary: login and get access token
+  /changepwd:
+    summary: Change password
+  /deleteuser:
+    summary: Delete account
+
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    AuthenticationFailed:
+      description: Username or password incorrect
+    InternalServerError:
+      description: Internal Server Error
+  schemas:
+    UserCredentials:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: email1@gmail.com
+        password:
+          type: string
+          example: 1234aA@
+    LoginAccessToken:
+      required:
+        - token
+        - uid
+      type: object
+      properties:
+        token:
+          type: string
+        uid:
+          type: string
+    UserID:
+      required:
+        - uid
+      type: object
+      properties:
+        uid:
+          type: string
+    RoomChat:
+      required:
+        - conversation_id
+        - user1_id
+        - user2_id
+      type: object
+      properties:
+        conversation_id:
+          description: conversation_id or room_id
+          type: string
+        user1_id:
+          type: string
+        user2_id:
+          type: string

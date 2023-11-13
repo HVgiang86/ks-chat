@@ -1,0 +1,47 @@
+{
+  "name": "kschat",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo |Error: no test specified && exit 1",
+    "lint": "eslint .",
+    "install": "npm install"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^16.3.1",
+    "ejs": "~2.6.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "express": "~4.16.1",
+    "express-jsdoc-swagger": "^1.8.0",
+    "express-validator": "^7.0.1",
+    "http-errors": "~1.6.3",
+    "install-peerdeps": "^3.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "~1.9.1",
+    "nanoid": "^5.0.3",
+    "swagger-ui-express": "^5.0.0",
+    "yamljs": "^0.3.0"
+  },
+  "engines": {
+    "node": "^16"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "eslint": "^8.53.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.8",
+    "tsconfig-paths": "^4.2.0"
+  }
+}
