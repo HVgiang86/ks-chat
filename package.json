@@ -6,7 +6,8 @@
     "start": "nodemon",
     "test": "echo |Error: no test specified && exit 1",
     "lint": "eslint .",
-    "install": "npm install"
+    "install": "npm install",
+    "prepare": "husky install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -37,6 +38,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-prettier": "^5.0.1",
+    "husky": "^8.0.3",
     "nodemon": "^3.0.1",
     "prettier": "^3.1.0",
     "rimraf": "^5.0.5",
