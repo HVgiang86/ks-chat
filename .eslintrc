@@ -9,8 +9,10 @@
   "parserOptions": {
     "ecmaVersion": 6
   },
-  "extends": "airbnb-base",
+  "extends": ["airbnb-base", "prettier", "plugin:node/recommended"],
+  "plugins": ["prettier"],
   "rules": {
+    "prettier/prettier": "error",
     "linebreak-style": ["off", "windows"],
     "no-unused-vars": "warn",
     "no-console": "off",
