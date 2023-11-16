@@ -11,10 +11,14 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const yaml = require('yamljs');
+const { mongoose } = require('mongoose');
+const cors = require('cors');
+const routes = require('./routes/index');
 
 const app = express();
 
 // Define routing here
+routes(app);
 
 // Swagger setup, do not modify
 const swaggerDocument = yaml.load(path.resolve(__dirname, '../swagger.yaml'));
@@ -34,6 +38,7 @@ app.get('/', (req, res) => {
 app.set('views', path.join(__dirname, '../dist/views'));
 app.set('view engine', 'ejs');
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -69,6 +74,15 @@ app.use((err, req, res) => {
   res.status(err.status || 500);
   res.render('error');
 });
+
+mongoose
+  .connect('mongodb+srv://phanhuuviet1:Phanviet2002@ks-chat.gpxd5p0.mongodb.net/')
+  .then(() => {
+    console.log('Connect success');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const port = process.env.PORT || 3000;
 app.listen(port);
