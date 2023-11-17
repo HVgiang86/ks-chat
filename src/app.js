@@ -13,9 +13,20 @@ const logger = require('morgan');
 const yaml = require('yamljs');
 const { mongoose } = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const routes = require('./routes/index');
 
 const app = express();
+
+// Config middlewares
+app.use(cors());
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // Define routing here
 routes(app);
@@ -37,13 +48,6 @@ app.get('/', (req, res) => {
 // view engine setup
 app.set('views', path.join(__dirname, '../dist/views'));
 app.set('view engine', 'ejs');
-
-app.use(cors());
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../dist')));
 
 // catch 404 and forward to error handler
 app.use((req, res) => {
