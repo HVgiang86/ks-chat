@@ -54,7 +54,7 @@ paths:
       responses:
         '200':
           description: success. Return html page
-  /api/login:
+  /api/auth/login:
     post:
       tags:
         - Authentication
@@ -78,7 +78,31 @@ paths:
 
         '500':
           $ref: '#/components/responses/InternalServerError'
-
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Register a new user and respond with an access token
+      requestBody:
+        description: User information for registration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '201':
+          description: Register successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginAccessToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/UserAlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/newchat:
     post:
       tags:
@@ -133,8 +157,24 @@ components:
       description: Username or password incorrect
     InternalServerError:
       description: Internal Server Error
+    UserAlreadyExists:
+      description: User already exist
+    BadRequest:
+      description: Bad request
   schemas:
     UserCredentials:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: email1@gmail.com
+        password:
+          type: string
+          example: 1234aA@
+    UserRegister:
       required:
         - email
         - password

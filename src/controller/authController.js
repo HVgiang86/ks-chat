@@ -26,13 +26,14 @@ const login = async (req, res, next) => {
       const token = generateAccessToken({ id: user._id });
 
       return res.status(200).json({
-        message: 'Login successfully',
+        message: 'Authentication success!',
         access_token: `Bearer ${token}`
       });
     } else {
-      return res.status(400).json({ message: 'User not exist!' });
+      return res.status(401).json({ message: 'Authentication failed!' });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: 'Internal server error'
     });
@@ -43,7 +44,7 @@ const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     // Check validate
-    if (!(email && password)) {
+    if (!email || !password) {
       return res.status(400).json({
         message: 'Missing required field!'
       });
@@ -72,8 +73,12 @@ const register = async (req, res, next) => {
       password: encryptedPassword
     });
 
-    return res.status(201).json(newUser);
+    return res.status(201).json({
+      message: 'Register successfully',
+      data: newUser
+    });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: 'Internal server error'
     });
@@ -95,6 +100,7 @@ const refreshToken = async (req, res, next) => {
       access_token: `Bearer ${accessToken}`
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: 'Internal server error'
     });

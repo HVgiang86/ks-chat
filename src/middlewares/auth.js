@@ -12,9 +12,10 @@ const verifyToken = (req, res, next) => {
     token = token.slice(7); // Remove "Bearer " from the beginning
   }
   try {
-    const decoded = jwt.verify(token, config.ACCESS_TOKEN);
-    req.user = decoded;
+    const { id } = jwt.verify(token, config.ACCESS_TOKEN);
+    req.uid = id;
   } catch (err) {
+    console.log(err);
     return res.status(401).send('Invalid Token');
   }
   return next();
