@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">#5A68E2</color>
+    <color name="primary_dark">#525FCD</color>
+    <color name="primary_light">#737FE6</color>
+    <color name="accent">#52AA8A</color>
+    <color name="secondary">#EF8354</color>
+    <color name="secondary_light">#F5B2A2</color>
+    <color name="secondary_dark">#BD7353</color>
+    <color name="primary_text">#000000</color>
+    <color name="secondary_text">#726B6B</color>
+    <color name="selection_gray">#EBEDFC</color>
+    <color name="chat_input_field">#999999</color>
+    <color name="pearl">#E7DFC6</color>
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,4 +20,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
 </resources>

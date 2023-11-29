@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">KS Chat</string>
+    <string name="ks_chat">KS CHAT</string>
+    <string name="slogan">KMA Stranger Chat\nMore chat, more fun!</string>
+    <string name="author_copyright">\@nhóm sinh viên CT5D</string>
+    <string name="sign_in">Sign in</string>
+    <string name="email">email</string>
+    <string name="the_email_address_is_incomplete">The email address is incomplete</string>
+    <string name="password">password</string>
 </resources>
