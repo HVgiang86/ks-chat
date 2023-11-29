@@ -1,9 +1,10 @@
-const User = require('../models/User');
+const dotenv = require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validateEmail } = require('../utils/validateField');
 const { generateAccessToken, generateRefreshToken } = require('../services/jwtService');
-const dotenv = require('dotenv').config();
+
+const User = require('../models/User');
 
 const login = async (req, res, next) => {
   try {
@@ -31,9 +32,8 @@ const login = async (req, res, next) => {
         access_token: token,
         refresh_token: refresh_token
       });
-    } else {
-      return res.status(401).json({ message: 'Authentication failed!' });
     }
+    return res.status(401).json({ message: 'Authentication failed!' });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -66,7 +66,7 @@ const register = async (req, res, next) => {
       });
     }
 
-    //Encrypt user password
+    // Encrypt user password
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     // Create user
