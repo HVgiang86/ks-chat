@@ -55,11 +55,12 @@ Following under steps for installing project
    ```
 3. Install NPM packages
    ```sh
-   npm install
+   yarn install
+   npm install --save eslint-config-airbnb
    ```
 4. Run project
    ```js
-   npm run start
+   yarn start
    ```
    <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
