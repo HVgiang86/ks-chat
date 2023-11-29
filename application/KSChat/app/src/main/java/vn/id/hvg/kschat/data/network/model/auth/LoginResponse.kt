@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 
 @Parcelize
 data class LoginResponse(
-    @SerializedName("id") @Expose val id: Int,
     @SerializedName("message") @Expose val message: String,
-    @SerializedName("access_token") @Expose val token: String
+    @SerializedName("access_token") @Expose val token: String,
+    @SerializedName("refresh_token") @Expose val refreshToken: String
 ) : Parcelable

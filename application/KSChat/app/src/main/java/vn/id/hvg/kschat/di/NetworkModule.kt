@@ -112,7 +112,6 @@ object NetworkModule {
         return client.build()
     }
 
-
     @Provides
     @Singleton
     @Named("unauthenticatedClient")

@@ -20,7 +20,6 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
 
     var loginUserLiveData = MutableLiveData<UserAccount>()
 
-
     fun onClick(v: View) {
         Log.d(Utils.getTag(this),"on Login Btn Click called")
         val email = emailLiveData.value
@@ -30,6 +29,4 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
             authRepository.login(email.toString(),password.toString())
         }
     }
-
-
 }

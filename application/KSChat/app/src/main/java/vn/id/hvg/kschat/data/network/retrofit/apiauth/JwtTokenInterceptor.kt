@@ -23,5 +23,6 @@ class JwtTokenInterceptor @Inject constructor(
         //for always available token
         //builder.header("token_dev", TOKEN_DEV)
         return chain.proceed(request.build())
+
     }
 }
