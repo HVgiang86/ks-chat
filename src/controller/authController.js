@@ -1,8 +1,9 @@
+const dotenv = require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv').config();
 const { validateEmail } = require('../utils/validateField');
-const { generateAccessToken } = require('../services/jwtService');
+const { generateAccessToken, generateRefreshToken } = require('../services/jwtService');
+
 const User = require('../models/User');
 
 const login = async (req, res, next) => {
@@ -24,10 +25,12 @@ const login = async (req, res, next) => {
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = generateAccessToken({ id: user._id });
+      const refresh_token = generateRefreshToken({ id: user._id });
 
       return res.status(200).json({
         message: 'Authentication success!',
-        access_token: `Bearer ${token}`,
+        access_token: token,
+        refresh_token: refresh_token,
       });
     }
     return res.status(401).json({ message: 'Authentication failed!' });
@@ -86,7 +89,7 @@ const register = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const token = req.cookies.refresh_token;
+    const token = req.cookies.refresh_token || req.body.refresh_token.split(' ')[1];
     if (!token) {
       return res.status(401).json({
         message: 'Unauthorized: Missing token',
@@ -96,7 +99,7 @@ const refreshToken = async (req, res, next) => {
     const accessToken = generateAccessToken({ id: userId });
     return res.status(200).json({
       message: 'Refresh token successfully!',
-      access_token: `Bearer ${accessToken}`,
+      access_token: accessToken,
     });
   } catch (error) {
     console.log(error);
