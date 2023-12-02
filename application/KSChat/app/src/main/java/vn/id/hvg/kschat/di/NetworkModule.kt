@@ -16,6 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -94,8 +95,7 @@ object NetworkModule {
     @Singleton
     @Named("tokenRefreshClient")
     fun providerTokenRefreshOkHttpClient(
-        cache: Cache,
-        refreshTokenInterceptor: RefreshTokenInterceptor
+        cache: Cache, refreshTokenInterceptor: RefreshTokenInterceptor
     ): OkHttpClient {
 
         val client = OkHttpClient.Builder()
@@ -126,6 +126,14 @@ object NetworkModule {
         client.connectTimeout(HTTP_TIMEOUT.toLong(), TimeUnit.SECONDS)
         client.readTimeout(HTTP_TIMEOUT.toLong(), TimeUnit.SECONDS)
         client.writeTimeout(HTTP_TIMEOUT.toLong(), TimeUnit.SECONDS)
+        client.addInterceptor { chain ->
+            val original = chain.request()
+            val request: Request
+            val builder: Request.Builder =
+                original.newBuilder().method(original.method, original.body)
+            request = builder.build()
+            return@addInterceptor chain.proceed(request)
+        }
         client.addInterceptor(loggingInterceptor)
         return client.build()
     }

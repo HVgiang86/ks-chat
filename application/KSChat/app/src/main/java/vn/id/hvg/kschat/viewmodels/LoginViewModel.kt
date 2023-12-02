@@ -1,16 +1,17 @@
 package vn.id.hvg.kschat.viewmodels
 
-import android.util.Log
-import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import vn.id.hvg.kschat.data.models.UserAccount
+import kotlinx.coroutines.withContext
+import vn.id.hvg.kschat.contants.EMAIL_REGEX
+import vn.id.hvg.kschat.contants.LoginState
+import vn.id.hvg.kschat.contants.PASSWORD_REGEX
 import vn.id.hvg.kschat.data.repositories.AuthRepository
-import vn.id.hvg.kschat.utils.Utils
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,15 +19,45 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
     var emailLiveData = MutableLiveData<String>()
     var passwordLiveData = MutableLiveData<String>()
 
-    var loginUserLiveData = MutableLiveData<UserAccount>()
+    var loginStateLiveData = MutableLiveData<LoginState>()
+    var isLoading = MutableLiveData<Boolean>()
 
-    fun onClick(v: View) {
-        Log.d(Utils.getTag(this),"on Login Btn Click called")
+    init {
+        isLoading.value = false
+    }
+
+    fun onLoginClick() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                login()
+            }
+        }
+    }
+
+    private suspend fun login() {
+        if (isLoading.value == true) return
+        if (!validateEmail() || !validatePassword()) return
+
+        isLoading.postValue(true)
         val email = emailLiveData.value
         val password = passwordLiveData.value
 
-        viewModelScope.launch(Dispatchers.Main) {
-            authRepository.login(email.toString(),password.toString())
-        }
+        authRepository.login(email.toString(), password.toString(), loginStateLiveData)
+        isLoading.postValue(false)
     }
+
+    fun validateEmail(): Boolean {
+        val email = emailLiveData.value
+        val patternEmail = Pattern.compile(EMAIL_REGEX)
+        return patternEmail.matcher(email.toString()).matches()
+    }
+
+    fun validatePassword(): Boolean {
+        val password = passwordLiveData.value
+        val patternPassword = Pattern.compile(PASSWORD_REGEX)
+        return patternPassword.matcher(password.toString()).matches()
+    }
+
+
 }
+

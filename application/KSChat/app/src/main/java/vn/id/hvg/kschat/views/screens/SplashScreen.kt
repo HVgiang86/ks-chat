@@ -1,14 +1,14 @@
 package vn.id.hvg.kschat.views.screens
 
-import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import dagger.hilt.android.AndroidEntryPoint
 import vn.id.hvg.kschat.R
+
 
 @AndroidEntryPoint
 class SplashScreen : AppCompatActivity() {
@@ -16,15 +16,17 @@ class SplashScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        startActivity(intent)
+
+
+        val handler = Handler()
+        handler.postDelayed(Runnable { // Do something after time
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            this.finish()
+        }, 400)
     }
+
+
 }

@@ -7,4 +7,6 @@
     <string name="email">email</string>
     <string name="the_email_address_is_incomplete">The email address is incomplete</string>
     <string name="password">password</string>
+    <string name="email_address_hint">Email address</string>
+    <string name="retry">Retry!</string>
 </resources>

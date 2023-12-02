@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.kotlinx)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.androidx.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -100,6 +101,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    //lottie animation by airbnb
+    implementation(libs.lottie)
 }
 
 // Allow references to generated code
