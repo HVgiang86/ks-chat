@@ -1,5 +1,6 @@
 package vn.id.hvg.kschat.views.screens
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -21,12 +22,22 @@ class LoginActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var binding: ActivityLoginBinding
 
+    companion object {
+        const val SIGN_UP_REQUEST_CODE = 10001
+        const val EMAIL_BUNDLE_KEY = "vn.id.hvg.KSChat.bundle.email"
+        const val PASSWORD_BUNDLE_KEY = "vn.id.hvg.KSChat.bundle.password"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loginViewModel
         enableEdgeToEdge()
         binding =
             DataBindingUtil.setContentView(this, R.layout.activity_login) as ActivityLoginBinding
+
+        binding.signUpTv.setOnClickListener {
+            openSignUpScreen()
+        }
 
         binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
@@ -136,6 +147,23 @@ class LoginActivity : AppCompatActivity() {
         val popup = supportFragmentManager.findFragmentByTag("loading")
         if (popup != null) {
             supportFragmentManager.beginTransaction().remove(popup).commit()
+        }
+    }
+
+    private fun openSignUpScreen() {
+        val intent = Intent(this, SignUpActivity::class.java)
+        @Suppress("DEPRECATION") startActivityForResult(intent, SIGN_UP_REQUEST_CODE)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SIGN_UP_REQUEST_CODE && resultCode == RESULT_OK) {
+            val email = data?.getStringExtra(EMAIL_BUNDLE_KEY)
+            val password = data?.getStringExtra(PASSWORD_BUNDLE_KEY)
+
+            binding.emailEdt.setText(email)
+            binding.passwordEdt.setText(password)
         }
     }
 }
