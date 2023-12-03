@@ -44,7 +44,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_input_layout"
-                style="@style/Theme.KSChat.TextInputLayout"
+                style="@style/Theme.KSChat.TextInputLayout.Credentials"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="44dp"
@@ -68,7 +68,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_input_layout"
-                style="@style/Theme.KSChat.TextInputLayout"
+                style="@style/Theme.KSChat.TextInputLayout.Credentials"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="44dp"

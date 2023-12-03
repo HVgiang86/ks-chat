@@ -30,7 +30,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loginViewModel
         enableEdgeToEdge()
         binding =
             DataBindingUtil.setContentView(this, R.layout.activity_login) as ActivityLoginBinding
@@ -48,10 +47,10 @@ class LoginActivity : AppCompatActivity() {
     private fun observe() {
         isLoadingObserve()
         loginStateObserve()
-        inputChangePasswordObserve()
+        inputChangeObserve()
     }
 
-    private fun inputChangePasswordObserve() {
+    private fun inputChangeObserve() {
         loginViewModel.emailLiveData.observe(this) {
             run {
                 if (it.isNullOrEmpty()) {
@@ -80,9 +79,7 @@ class LoginActivity : AppCompatActivity() {
     private fun isLoadingObserve() {
         loginViewModel.isLoading.observe(this) { isLoading ->
             run {
-                if (isLoading) {
-                    showLoadingPopup()
-                }
+                if (isLoading) showLoadingPopup()
             }
         }
     }
@@ -119,14 +116,12 @@ class LoginActivity : AppCompatActivity() {
         )
         authenticationFailPopup.isCancelable = false
         authenticationFailPopup.show(supportFragmentManager, "")
-
     }
 
     private fun showNetworkErrorDialog() {
         val networkErrorPopup = ErrorPopupFragment.newInstance("Oops!", "A Network error occurred!")
         networkErrorPopup.isCancelable = false
         networkErrorPopup.show(supportFragmentManager, "")
-
     }
 
     private fun showUnknownErrorDialog() {
@@ -134,7 +129,6 @@ class LoginActivity : AppCompatActivity() {
             ErrorPopupFragment.newInstance("Oops!", "An unknown error occurred!")
         unknownErrorPopup.isCancelable = false
         unknownErrorPopup.show(supportFragmentManager, "")
-
     }
 
     private fun showLoginSuccessDialog() {
@@ -161,9 +155,8 @@ class LoginActivity : AppCompatActivity() {
         if (requestCode == SIGN_UP_REQUEST_CODE && resultCode == RESULT_OK) {
             val email = data?.getStringExtra(EMAIL_BUNDLE_KEY)
             val password = data?.getStringExtra(PASSWORD_BUNDLE_KEY)
-
-            binding.emailEdt.setText(email)
-            binding.passwordEdt.setText(password)
+            loginViewModel.emailLiveData.value = email
+            loginViewModel.passwordLiveData.value = password
         }
     }
 }

@@ -5,19 +5,16 @@ import android.os.Bundle
 import android.view.Window
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.DialogFragment
 import vn.id.hvg.kschat.R
 
-class ErrorPopupFragment (
-) : DialogFragment() {
+class ErrorPopupFragment : DialogFragment() {
     companion object {
         internal const val NAME_KEY = "NAME_KEY"
         internal const val CONTENT_KEY = "CONTENT_KEY"
 
         fun newInstance(
-            name: String?,
-            content: String?
+            name: String?, content: String?
         ): ErrorPopupFragment {
             return ErrorPopupFragment().apply {
                 arguments = Bundle().apply {

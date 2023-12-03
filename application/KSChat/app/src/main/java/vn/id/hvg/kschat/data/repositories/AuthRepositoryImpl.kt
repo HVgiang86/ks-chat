@@ -4,13 +4,13 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
 import vn.id.hvg.kschat.contants.LoginState
+import vn.id.hvg.kschat.contants.RegisterState
 import vn.id.hvg.kschat.data.network.api.AuthenticatedApi
 import vn.id.hvg.kschat.data.network.api.RefreshTokenApi
 import vn.id.hvg.kschat.data.network.api.UnauthenticatedApi
 import vn.id.hvg.kschat.data.network.model.auth.RefreshTokenResponse
-import vn.id.hvg.kschat.data.network.model.auth.RegisterResponse
 import vn.id.hvg.kschat.data.network.retrofit.apiauth.JwtTokenManager
-import vn.id.hvg.kschat.utils.Utils
+import vn.id.hvg.kschat.data.userstate.UserStateManager
 import javax.inject.Inject
 
 
@@ -18,11 +18,12 @@ class AuthRepositoryImpl @Inject constructor(
     private val authenticatedApi: AuthenticatedApi,
     private val tokenResponse: RefreshTokenApi,
     private val unauthenticatedApi: UnauthenticatedApi,
-    private val jwtTokenManager: JwtTokenManager
+    private val jwtTokenManager: JwtTokenManager,
+    private val userStateManager: UserStateManager
 ) : AuthRepository {
-    val TAG = Utils.getTag(this)
-
-    override suspend fun login(email: String, password: String, loginState: MutableLiveData<LoginState>) {
+    override suspend fun login(
+        email: String, password: String, loginState: MutableLiveData<LoginState>
+    ) {
 
         Log.d("HAHA", "login called")
 
@@ -42,15 +43,9 @@ class AuthRepositoryImpl @Inject constructor(
             } else {
                 Log.d("HEH", "${response.code()}")
                 when (response.code()) {
-                    400, 401 -> {
-                        loginState.postValue(LoginState.INCORRECT_CREDENTIALS)
-                    }
-
-                    else -> {
-                        loginState.postValue(LoginState.UNKNOWN_ERROR)
-                    }
+                    400, 401 -> loginState.postValue(LoginState.INCORRECT_CREDENTIALS)
+                    else -> loginState.postValue(LoginState.UNKNOWN_ERROR)
                 }
-
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -58,8 +53,29 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun register(email: String, password: String): RegisterResponse {
-        TODO("Not yet implemented")
+    override suspend fun register(
+        email: String, password: String, registerState: MutableLiveData<RegisterState>
+    ) {
+        Log.d("Haha", "register called")
+        try {
+            val response = unauthenticatedApi.register(email, password)
+            if (response.isSuccessful) {
+                Log.d("HEHE", "${response.code()}")
+                registerState.postValue(RegisterState.SUCCESS)
+                val id = response.body()?.data?.id
+                runBlocking { userStateManager.saveUserId(id.toString()) }
+            } else {
+                Log.d("HEH", "${response.code()}")
+                when (response.code()) {
+                    400 -> registerState.postValue(RegisterState.BAD_REQUEST)
+                    409 -> registerState.postValue(RegisterState.USERNAME_TAKEN)
+                    else -> registerState.postValue(RegisterState.UNKNOWN_ERROR)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            registerState.postValue(RegisterState.NETWORK_ERROR)
+        }
     }
 
     override fun refreshToken(): RefreshTokenResponse {
