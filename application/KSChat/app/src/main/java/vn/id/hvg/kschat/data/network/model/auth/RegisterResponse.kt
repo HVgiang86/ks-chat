@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class RegisterResponse(
     @SerializedName("message") val message: String,
     @SerializedName("data") val data: DataRegisterResponse
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class DataRegisterResponse(
@@ -17,5 +17,5 @@ data class DataRegisterResponse(
     @SerializedName("_id") val id: String,
     @SerializedName("createdAt") val createdAt: String,
     @SerializedName("updatedAt") val updatedAt: String,
-    @SerializedName("__v") val __v: String
-): Parcelable
+    @SerializedName("__v") val v: String
+) : Parcelable

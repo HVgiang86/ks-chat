@@ -18,7 +18,7 @@ class JwtTokenInterceptor @Inject constructor(
             jwtTokenManager.getAccessJwt()
         }
         val request = chain.request().newBuilder()
-        val builder = request.addHeader(HEADER_AUTHORIZATION, "$TOKEN_TYPE $token")
+        request.addHeader(HEADER_AUTHORIZATION, "$TOKEN_TYPE $token")
 
         //for always available token
         //builder.header("token_dev", TOKEN_DEV)

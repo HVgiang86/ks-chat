@@ -34,13 +34,14 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
-const val AUTH_PREFERENCES = "vn.id.hvg.AUTH_PREFERENCES"
+private const val AUTH_PREFERENCES = "vn.id.hvg.AUTH_PREFERENCES"
 
 @InstallIn(SingletonComponent::class)
 @Module
 object NetworkModule {
     @Provides
     @Singleton
+    @Named("tokenDataStore")
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(corruptionHandler = ReplaceFileCorruptionHandler(
             produceNewData = { emptyPreferences() }),
@@ -49,7 +50,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJwtTokenManager(dataStore: DataStore<Preferences>): JwtTokenManager {
+    fun provideJwtTokenManager(@Named("tokenDataStore")dataStore: DataStore<Preferences>): JwtTokenManager {
         return JwtTokenDataStore(dataStore)
     }
 

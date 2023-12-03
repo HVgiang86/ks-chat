@@ -10,6 +10,7 @@ import vn.id.hvg.kschat.data.network.api.UnauthenticatedApi
 import vn.id.hvg.kschat.data.network.retrofit.apiauth.JwtTokenManager
 import vn.id.hvg.kschat.data.repositories.AuthRepository
 import vn.id.hvg.kschat.data.repositories.AuthRepositoryImpl
+import vn.id.hvg.kschat.data.userstate.UserStateManager
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -21,13 +22,15 @@ class RepositoryModule {
         authenticatedApi: AuthenticatedApi,
         tokenResponse: RefreshTokenApi,
         unauthenticatedApi: UnauthenticatedApi,
-        jwtTokenManager: JwtTokenManager
+        jwtTokenManager: JwtTokenManager,
+        userStateManager: UserStateManager
     ): AuthRepository {
         return AuthRepositoryImpl(
             authenticatedApi = authenticatedApi,
             tokenResponse = tokenResponse,
             unauthenticatedApi = unauthenticatedApi,
-            jwtTokenManager = jwtTokenManager
+            jwtTokenManager = jwtTokenManager,
+            userStateManager = userStateManager,
         )
     }
 }

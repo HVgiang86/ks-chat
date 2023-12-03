@@ -5,3 +5,5 @@ const val EMAIL_REGEX =
 const val NOT_EMPTY_REGEX = "[^\\\\s]+"
 
 const val PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$"
+
+const val NAME_REGEX = "^[A-Za-z ]+\$"
