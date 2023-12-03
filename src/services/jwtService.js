@@ -5,7 +5,7 @@ dotenv.config();
 
 const generateAccessToken = (payload) => {
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN, {
-    expiresIn: '60m'
+    expiresIn: '60m',
   });
 
   return accessToken;
@@ -13,7 +13,7 @@ const generateAccessToken = (payload) => {
 
 const generateRefreshToken = (payload) => {
   const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN, {
-    expiresIn: '12h'
+    expiresIn: '12h',
   });
 
   return refreshToken;
@@ -21,5 +21,5 @@ const generateRefreshToken = (payload) => {
 
 module.exports = {
   generateAccessToken,
-  generateRefreshToken
+  generateRefreshToken,
 };

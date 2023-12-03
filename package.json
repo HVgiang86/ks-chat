@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./src/app.js",
-    "test": "nodemon",
-    "test": "echo |Error: no test specified && exit 1",
+    "dev": "nodemon",
     "lint": "eslint .",
     "server/install": "npm install",
     "prepare": "husky install",
