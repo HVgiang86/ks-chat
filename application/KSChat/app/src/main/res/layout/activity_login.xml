@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="LoginViewModel"
+            type="vn.id.hvg.kschat.viewmodels.LoginViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:theme="@style/Theme.KSChat.PurpleBackground"
+        tools:context=".views.screens.LoginActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/logo_img"
+                android:layout_width="110dp"
+                android:layout_height="116dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/logo" />
+
+            <TextView
+                android:id="@+id/label_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:text="@string/sign_in"
+                android:textAppearance="@style/Theme.KSChat.Text.AppNameLabel" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/email_input_layout"
+                style="@style/Theme.KSChat.TextInputLayout.Credentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="44dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginRight="44dp"
+                android:hint="@string/email"
+                android:textAppearance="@style/Theme.KSChat.Text.InfoTextFieldLabel"
+                app:endIconContentDescription="valid email"
+                app:endIconMode="custom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email_edt"
+                    style="@style/Theme.KSChat.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:inputType="textEmailAddress"
+                    android:text="@={LoginViewModel.emailLiveData}"
+                    android:textAppearance="@style/Theme.KSChat.Text.InfoTextField" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/password_input_layout"
+                style="@style/Theme.KSChat.TextInputLayout.Credentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="44dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="44dp"
+                android:hint="@string/password"
+                android:textAppearance="@style/Theme.KSChat.Text.InfoTextFieldLabel"
+
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password_edt"
+                    style="@style/Theme.KSChat.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:text="@={LoginViewModel.passwordLiveData}"
+                    android:textAppearance="@style/Theme.KSChat.Text.InfoTextField" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="90dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="90dp"
+                android:background="@drawable/text_button_bg"
+                android:fontFamily="@font/montserrat_bold"
+                android:onClick="@{() -> LoginViewModel.onLoginClick()}"
+                android:text="@string/sign_in"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="24dp"
+                >
+                <TextView
+                    android:id="@+id/forgot_password_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/forgot_your_password"
+                    android:clickable="true"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:textColor="@color/white"
+                    />
+
+                <TextView
+                    android:id="@+id/sign_up_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sign_up"
+                    android:clickable="true"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="4dp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

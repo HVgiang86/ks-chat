@@ -80,7 +80,7 @@ app.use((err, req, res) => {
 });
 
 mongoose
-  .connect('mongodb+srv://phanhuuviet1:Phanviet2002@ks-chat.gpxd5p0.mongodb.net/')
+  .connect('mongodb+srv://hvgiang86:SPvUaRvmjdZk9oQQ@cluster0.y5vnx0u.mongodb.net')
   .then(() => {
     console.log('Connect success');
   })
