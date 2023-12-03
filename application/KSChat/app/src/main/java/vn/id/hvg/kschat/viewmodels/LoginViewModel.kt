@@ -58,6 +58,11 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
         return patternPassword.matcher(password.toString()).matches()
     }
 
+    private fun triggerInputDataChangeIfEmpty() {
+        if (emailLiveData.value.isNullOrEmpty())
+            emailLiveData.postValue("")
+        if (passwordLiveData.value.isNullOrEmpty()) passwordLiveData.postValue("")
+    }
 
 }
 
