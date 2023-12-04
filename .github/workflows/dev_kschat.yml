@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - kschat
 on:
   push:
     branches:
-      - deployment
+      - dev
   workflow_dispatch:
 
 jobs:
