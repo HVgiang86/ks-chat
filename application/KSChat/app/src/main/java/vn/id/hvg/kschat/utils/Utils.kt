@@ -1,5 +1,7 @@
 package vn.id.hvg.kschat.utils
 
+import android.os.Handler
+
 object Utils {
     fun getTag(o: Any): String {
         return if (!o.javaClass.isAnonymousClass) {
@@ -9,5 +11,10 @@ object Utils {
             val name = o.javaClass.name
             if (name.length <= 23) name else name.substring(name.length - 23, name.length)// last 23 chars
         }
+    }
+
+    fun delayFunction(function: () -> Unit, time: Long) {
+        @Suppress("DEPRECATION") val handler = Handler()
+        handler.postDelayed(function, time)
     }
 }

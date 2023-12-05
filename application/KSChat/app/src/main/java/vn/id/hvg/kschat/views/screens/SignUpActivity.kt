@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import vn.id.hvg.kschat.R
 import vn.id.hvg.kschat.contants.RegisterState
 import vn.id.hvg.kschat.databinding.ActivitySignUpBinding
+import vn.id.hvg.kschat.utils.Utils
 import vn.id.hvg.kschat.viewmodels.SignUpViewModel
 import vn.id.hvg.kschat.views.uicomponents.popup.AuthenticationFailPopupFragment
 import vn.id.hvg.kschat.views.uicomponents.popup.ErrorPopupFragment
@@ -93,7 +94,7 @@ class SignUpActivity : AppCompatActivity() {
                 RegisterState.SUCCESS -> {
                     showLoginSuccessDialog()
                     val delayTime = 2000L
-                    delayFunction(::returnSignUpResult, delayTime)
+                    Utils.delayFunction(::returnSignUpResult, delayTime)
                 }
 
                 RegisterState.BAD_REQUEST -> showBadRequestErrorDialog()
@@ -167,9 +168,6 @@ class SignUpActivity : AppCompatActivity() {
         loginSuccessPopup.show(supportFragmentManager, "signupSuccess")
     }
 
-    private fun delayFunction(function: () -> Unit, time: Long) {
-        @Suppress("DEPRECATION") val handler = Handler()
-        handler.postDelayed(function, time)
-    }
+
 
 }

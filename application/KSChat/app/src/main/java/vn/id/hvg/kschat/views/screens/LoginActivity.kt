@@ -11,6 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import vn.id.hvg.kschat.R
 import vn.id.hvg.kschat.contants.LoginState
 import vn.id.hvg.kschat.databinding.ActivityLoginBinding
+import vn.id.hvg.kschat.utils.Utils
 import vn.id.hvg.kschat.viewmodels.LoginViewModel
 import vn.id.hvg.kschat.views.uicomponents.popup.AuthenticationFailPopupFragment
 import vn.id.hvg.kschat.views.uicomponents.popup.ErrorPopupFragment
@@ -93,7 +94,11 @@ class LoginActivity : AppCompatActivity() {
                 } else {
                     dismissLoadingPopup()
                     when (it) {
-                        LoginState.SUCCESS -> showLoginSuccessDialog()
+                        LoginState.SUCCESS -> {
+                            showLoginSuccessDialog()
+                            val delayTime = 2000L
+                            Utils.delayFunction(::openMainActivityClearBackstack, delayTime)
+                        }
                         LoginState.INCORRECT_CREDENTIALS -> showIncorrectCredentialsDialog()
                         LoginState.NETWORK_ERROR -> showNetworkErrorDialog()
                         LoginState.UNKNOWN_ERROR -> showUnknownErrorDialog()
@@ -158,5 +163,11 @@ class LoginActivity : AppCompatActivity() {
             loginViewModel.emailLiveData.value = email
             loginViewModel.passwordLiveData.value = password
         }
+    }
+
+    private fun openMainActivityClearBackstack() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 }
