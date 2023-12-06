@@ -14,13 +14,13 @@ const UserSchema = new mongoose.Schema(
     country: { type: String, default: 'VN' },
     publicUsers: [
       {
-        type: mongoose.Schema.Types.ObjectId
-      }
-    ]
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    ],
   },
   {
     timestamps: true,
-    collection: 'User'
+    collection: 'User',
   }
 );
 

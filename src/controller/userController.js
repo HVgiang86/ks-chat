@@ -6,25 +6,25 @@ const getMe = async (req, res, next) => {
     const { uid } = req;
     if (!uid) {
       return res.status(400).json({
-        message: 'Missing user id!'
+        message: 'Missing user id!',
       });
     }
 
     const user = await User.findOne({ _id: uid });
     if (!user) {
       return res.status(409).json({
-        message: 'User is not exist!'
+        message: 'User is not exist!',
       });
     }
 
     return res.status(200).json({
       message: 'Find user successfully',
-      data: user
+      data: user,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -34,23 +34,23 @@ const getUserById = async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
       return res.status(400).json({
-        message: 'Missing user id!'
+        message: 'Missing user id!',
       });
     }
     const user = await User.findById(id);
     if (!user) {
       return res.status(409).json({
-        message: 'User is not exist!'
+        message: 'User is not exist!',
       });
     }
     return res.status(200).json({
       message: 'Find user successfully',
-      data: user
+      data: user,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -61,7 +61,7 @@ const updateUser = async (req, res, next) => {
     const { uid } = req;
     if (!uid) {
       return res.status(400).json({
-        message: 'Missing user id!'
+        message: 'Missing user id!',
       });
     }
 
@@ -72,32 +72,32 @@ const updateUser = async (req, res, next) => {
       gender,
       bio,
       age,
-      interest
+      interest,
     };
 
     const user = await User.findOne({ _id: uid });
     if (!user) {
       return res.status(409).json({
-        message: 'User is not exist!'
+        message: 'User is not exist!',
       });
     }
     const newUser = await User.findOneAndUpdate(
       { _id: uid },
       {
-        $set: newData
+        $set: newData,
       },
       {
-        new: true
+        new: true,
       }
     );
     return res.status(200).json({
       message: 'Update user successfully',
-      data: newUser
+      data: newUser,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -108,14 +108,14 @@ const changePasswordUser = async (req, res, next) => {
     const { uid } = req;
     if (!uid) {
       return res.status(400).json({
-        message: 'Missing user id!'
+        message: 'Missing user id!',
       });
     }
 
     const user = await User.findOne({ _id: uid });
     if (!user) {
       return res.status(409).json({
-        message: 'User is not exist!'
+        message: 'User is not exist!',
       });
     }
     // Compare password of user vs current password
@@ -128,19 +128,19 @@ const changePasswordUser = async (req, res, next) => {
     await User.findOneAndUpdate(
       { _id: uid },
       {
-        $set: { password: newEncryptedPassword }
+        $set: { password: newEncryptedPassword },
       },
       {
-        new: true
+        new: true,
       }
     );
     return res.status(200).json({
-      message: 'Change password user successfully!'
+      message: 'Change password user successfully!',
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -149,5 +149,5 @@ module.exports = {
   getMe,
   getUserById,
   updateUser,
-  changePasswordUser
+  changePasswordUser,
 };
