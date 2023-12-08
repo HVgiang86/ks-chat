@@ -36,13 +36,14 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primary</item>
         <!-- Customize your theme here. -->
-
         <item name="android:fitsSystemWindows">true</item>
+
         <item name="windowActionBar">false</item>
     </style>
 
     <style name="Theme.KSChat.WhiteBackground" parent="Theme.KSChat">
         <item name="android:background">@color/white</item>
+
     </style>
 
     <style name="Theme.KSChat.PurpleBackground" parent="Theme.KSChat">
@@ -121,4 +122,13 @@
         <item name="android:textColor">@color/secondary</item>
     </style>
 
+    <style name="Theme.KSChat.Text.AppBar" parent="Theme.KSChat.DefaultText" >
+        <item name="fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
