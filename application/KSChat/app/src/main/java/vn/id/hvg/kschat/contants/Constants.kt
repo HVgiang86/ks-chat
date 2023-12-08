@@ -1,6 +1,7 @@
 package vn.id.hvg.kschat.contants
 
 const val BASE_URL = "http://10.0.2.2:3000/api/"
+//const val BASE_URL = "https://kschat.azurewebsites.net/api/"
 const val HTTP_TIMEOUT = 1*60 //in second
 //const val TOKEN_DEV = "token_dev"
 
