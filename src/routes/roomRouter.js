@@ -1,11 +1,10 @@
 const express = require('express');
-const { room, preload, messages, user } = require('../controller/roomController');
+const { getListRoomsByUserId, createRoom } = require('../controller/roomController');
+const { verifyToken } = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.post('/room', room);
-router.get('/room/0/preload', preload);
-router.get('/room/:id/messages', messages);
-router.get('/rooms/:userId', user);
+router.get('/', verifyToken, getListRoomsByUserId);
+router.post('/', verifyToken, createRoom);
 
 module.exports = router;

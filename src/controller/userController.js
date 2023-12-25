@@ -1,102 +1,116 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const {
-    validateEmail
-} = require('../utils/validateField');
-const {
-    generateAccessToken
-} = require('../services/jwtService');
-const dotenv = require('dotenv').config();
-const {
-    client: redisClient,
-    exists,
-    set,
-    get,
-    hgetall,
-    sadd,
-    zadd,
-    hmget,
-    smembers,
-    sismember,
-    srem,
-    sub,
-    auth: runRedisAuth,
-} = require("../middlewares/redis");
-const {
-    createUser,
-    makeUsernameKey,
-    createPrivateRoom,
-    sanitise,
-    getMessages,
-} = require("../middlewares/utils");
-const session = require("express-session");
 
-const auth = (req, res, next) => {
-    if (!req.session.user) {
-      return res.sendStatus(403);
+const getMe = async (req, res, next) => {
+  try {
+    const { uid } = req;
+    if (!uid) {
+      return res.status(400).json({
+        message: 'Missing user id!'
+      });
     }
-    next();
-  };
 
+    const user = await User.findOne({ _id: uid });
+    if (!user) {
+      return res.status(409).json({
+        message: 'User is not exist!'
+      });
+    }
 
-const randomName = async (req, res, next) => {
-    return res.send(randomName({
-        first: true
-    }));
+    return res.status(200).json({
+      message: 'Find user successfully',
+      data: user
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
 };
 
-const usersOnline = async (req, res, next) => {
-    const onlineIds = await smembers(`online_users`);
-    const users = {};
-    for (let onlineId of onlineIds) {
-        const user = await hgetall(`user:${onlineId}`);
-        users[onlineId] = {
-            id: onlineId,
-            username: user.username,
-            online: true,
-        };
+const getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        message: 'Missing user id!'
+      });
     }
-    return res.send(users);
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(409).json({
+        message: 'User is not exist!'
+      });
+    }
+    const isPublic = user.publicUsers.includes(id);
+    if (isPublic) {
+      return res.status(200).json({
+        message: 'Find user successfully',
+        data: user
+      });
+    }
+    return res.status(200).json({
+      message: 'Find user successfully',
+      data: { id }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
 };
 
-const users = async (req, res, next) => {
-    /** @ts-ignore */
-    /** @type {string[]} */
-    const ids = req.query.ids;
-    if (typeof ids === "object" && Array.isArray(ids)) {
-        /** Need to fetch */
-        const users = {};
-        for (let x = 0; x < ids.length; x++) {
-            /** @type {string} */
-            const id = ids[x];
-            const user = await hgetall(`user:${id}`);
-            users[id] = {
-                id: id,
-                username: user.username,
-                online: !!(await sismember("online_users", id)),
-            };
-        }
-        return res.send(users);
+const updateUser = async (req, res, next) => {
+  try {
+    const { password, firstName, lastName, dateOfBirth, gender, bio, age, interest } = req.body;
+    const { uid } = req;
+    if (!uid) {
+      return res.status(400).json({
+        message: 'Missing user id!'
+      });
     }
-    return res.sendStatus(404);
-};
 
-const me = async (req, res, next) => {
-    /** @ts-ignore */
-    const {
-        user
-    } = req.session;
-    if (user) {
-        return res.json(user);
+    const newData = {
+      password,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      bio,
+      age,
+      interest
+    };
+
+    const user = await User.findOne({ _id: uid });
+    if (!user) {
+      return res.status(409).json({
+        message: 'User is not exist!'
+      });
     }
-    /** User not found */
-    return res.json(null);
+    const newUser = await User.findOneAndUpdate(
+      { _id: uid },
+      {
+        $set: newData
+      },
+      {
+        new: true
+      }
+    );
+    return res.status(200).json({
+      message: 'Update user successfully',
+      data: newUser
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
 };
 
 module.exports = {
-    randomName,
-    usersOnline,
-    users,
-    me
+  getMe,
+  getUserById,
+  updateUser
 };

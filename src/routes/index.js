@@ -4,8 +4,8 @@ const roomRouter = require('./roomRouter');
 
 const routes = (app) => {
   app.use('/api/auth', authRouter);
-  app.use(userRouter);
-  app.use(roomRouter);
+  app.use('/api/users', userRouter);
+  app.use('/api/rooms', roomRouter);
 };
 
 module.exports = routes;

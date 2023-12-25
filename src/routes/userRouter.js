@@ -1,11 +1,12 @@
 const express = require('express');
-const { randomName, usersOnline, users, me } = require('../controller/userController');
+const { getMe, getUserById, updateUser } = require('../controller/userController');
+const { verifyToken } = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/randomName', randomName);
-router.get('/users/online', usersOnline);
-router.get('/users', users);
-router.get('/me', me);
+router.get('/me', verifyToken, getMe);
+router.get('/:id', getUserById);
+
+router.put('/update', verifyToken, updateUser);
 
 module.exports = router;
