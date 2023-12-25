@@ -2,7 +2,7 @@
 require("dotenv").config();
 const redis = require("redis");
 
-const endpoint = process.env.REDIS_ENDPOINT_URL || "127.0.0.1:6379";
+const endpoint = process.env.REDIS_ENDPOINT_URL || "13.239.122.152:6379";
 const password = process.env.REDIS_PASSWORD || null;
 
 const [host, port] = endpoint.split(":");

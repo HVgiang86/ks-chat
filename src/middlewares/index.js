@@ -106,7 +106,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         ...socket.request.session.user,
         online: true,
       };
-
+      console.log("connect");
       publish("user.connected", msg);
       socket.broadcast.emit("user.connected", msg);
 
@@ -125,6 +125,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          * }} message
          **/
         async (message) => {
+          console.log("message");
           /** Make sure nothing illegal is sent here. */
           message = {
             ...message,
@@ -162,7 +163,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         }
       );
       socket.on("disconnect", async () => {
-        const userId = socket.request.session.user.id;
+        console.log("dis");
+        const userId = socket .request.session.user.id;
         await srem("online_users", userId);
         const msg = {
           ...socket.request.session.user,
