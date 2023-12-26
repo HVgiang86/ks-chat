@@ -11,17 +11,24 @@ const UserSchema = new mongoose.Schema(
     bio: { type: String },
     age: { type: Number },
     interest: { type: String },
+    country: { type: String, default: 'VN' },
     publicUsers: [
       {
-        type: mongoose.Schema.Types.ObjectId
-      }
-    ]
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    ],
   },
   {
     timestamps: true,
     collection: 'User',
   }
 );
+
+UserSchema.methods.toJSON = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
+};
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;
