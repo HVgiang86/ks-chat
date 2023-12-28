@@ -13,8 +13,35 @@ const getListRoomsByUserId = async (uid) => {
         'user2.id': uid
       }]
     });
-
     return rooms;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const deleteRoom = async (uid1, uid2) => {
+  try {
+
+    if (!uid1 || !uid2) {
+      console.log("Invalid param");
+      return null;
+    }
+    const response = await Room.deleteOne({
+
+      $or: [{
+          'user1.id': uid1,
+          'user2.id': uid2
+        },
+        {
+          'user1.id': uid2,
+          'user2.id': uid1
+        },
+      ],
+
+    });
+
+    return response;
   } catch (error) {
     console.log(error);
     return null;
@@ -45,5 +72,6 @@ const createRoom = async (uid1, uid2) => {
 
 module.exports = {
   getListRoomsByUserId,
-  createRoom
+  createRoom,
+  deleteRoom
 };

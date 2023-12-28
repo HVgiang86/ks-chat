@@ -366,6 +366,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             "partner_id": partner_id
           }
           console.log(roomKey);
+
           // /**
           //  * It may be possible that the room is private and new, so it won't be shown on the other
           //  * user's screen, check if the roomKey exist. If not then broadcast message that the room is appeared
@@ -373,8 +374,13 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           // const isPrivate = !(await exists(`${roomKey}:name`));
           const roomExists = await exists(roomKey);
           if (roomExists) {
-            io.to(roomKey).emit("end_chat", messageEmit);
-            publish("end_chat", message);
+            const res = await roomService.deleteRoom(uid, partner_id);
+            console.log(res);
+            if (res.deletedCount !== 0) {
+              console.log("deleted");
+              io.to(roomKey).emit("end_chat", messageEmit);
+              publish("end_chat", message);
+            }
           } else {
             console.log("Dont exits room");
           }
