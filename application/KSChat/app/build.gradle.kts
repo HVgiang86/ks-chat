@@ -83,14 +83,13 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.dagger)
     implementation(libs.hilt.android)
-
+    
+    //use kapt instead of ksp.
     //kapt(libs.google.dagger.compiler)
     //kapt(libs.hilt.android.compiler)
 
     ksp(libs.google.dagger.compiler)
     ksp(libs.hilt.android.compiler)
-
-    //room db
 
     //coroutines
     implementation(libs.kotlinx.coroutines.core)
@@ -104,10 +103,23 @@ dependencies {
 
     //lottie animation by airbnb
     implementation(libs.lottie)
+
+    //Room DB
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    // To use Kotlin Symbol Processing (KSP)
+    ksp(libs.androidx.room.compiler)
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation(libs.room.ktx)
+    // optional - RxJava2 support for Room
+    implementation(libs.androidx.room.rxjava2)
+
+
 }
 
 // Allow references to generated code
 /*
+//use kapt instead of ksp
 kapt {
     correctErrorTypes = true
 }*/

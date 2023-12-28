@@ -1,26 +1,25 @@
 package vn.id.hvg.kschat.views.screens
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import dagger.hilt.android.AndroidEntryPoint
 import vn.id.hvg.kschat.R
-import vn.id.hvg.kschat.databinding.ActivityMainBinding
-import vn.id.hvg.kschat.viewmodels.MainViewModel
+import vn.id.hvg.kschat.databinding.ActivityChatListBinding
+import vn.id.hvg.kschat.viewmodels.ChatListModel
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    private val mainViewModel: MainViewModel by viewModels()
-    private lateinit var binding: ActivityMainBinding
+class ChatListActivity : AppCompatActivity() {
+    private val chatListModel: ChatListModel by viewModels()
+    private lateinit var binding: ActivityChatListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding =
-            DataBindingUtil.setContentView(this, R.layout.activity_main) as ActivityMainBinding
-        binding.mainViewModel = mainViewModel
+            DataBindingUtil.setContentView(this, R.layout.activity_chat_list) as ActivityChatListBinding
+        binding.mainViewModel = chatListModel
         binding.lifecycleOwner = this
 
         val actionBar = binding.topAppBar

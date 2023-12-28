@@ -6,6 +6,6 @@ import vn.id.hvg.kschat.data.repositories.AuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val authRepository: AuthRepository) :
+class ChatListModel @Inject constructor(private val authRepository: AuthRepository) :
     ViewModel() {
 }

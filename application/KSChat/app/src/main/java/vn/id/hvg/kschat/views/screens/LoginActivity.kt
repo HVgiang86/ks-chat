@@ -166,7 +166,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun openMainActivityClearBackstack() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, ChatListActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
     }
