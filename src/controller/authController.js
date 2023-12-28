@@ -21,7 +21,7 @@ const login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email });
+//     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = generateAccessToken({ id: user._id });
@@ -44,7 +44,10 @@ const login = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const {
+      email,
+      password
+    } = req.body;
     // Check validate
     if (!email || !password) {
       return res.status(400).json({
@@ -59,7 +62,9 @@ const register = async (req, res, next) => {
     }
 
     // Check user exist
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email
+    });
     if (user) {
       return res.status(409).json({
         message: 'User already exist!',
@@ -95,8 +100,12 @@ const refreshToken = async (req, res, next) => {
         message: 'Unauthorized: Missing token',
       });
     }
-    const { id: userId } = jwt.decode(token, process.env.ACCESS_TOKEN);
-    const accessToken = generateAccessToken({ id: userId });
+    const {
+      id: userId
+    } = jwt.decode(token, process.env.ACCESS_TOKEN);
+    const accessToken = generateAccessToken({
+      id: userId
+    });
     return res.status(200).json({
       message: 'Refresh token successfully!',
       access_token: accessToken,
@@ -108,6 +117,46 @@ const refreshToken = async (req, res, next) => {
     });
   }
 };
+
+
+// const login = async (req, res, next) => {
+//   const {
+//     username,
+//     password
+//   } = req.body;
+//   const usernameKey = makeUsernameKey(username);
+//   const userExists = await exists(usernameKey);
+//   if (!userExists) {
+//     const newUser = await createUser(username, password);
+//     /** @ts-ignore */
+//     req.session.user = newUser;
+//     return res.status(201).json(newUser);
+//   } else {
+//     const userKey = await get(usernameKey);
+//     const data = await hgetall(userKey);
+//     if (await bcrypt.compare(password, data.password)) {
+//       const user = {
+//         id: userKey.split(":").pop(),
+//         username
+//       };
+//       /** @ts-ignore */
+//       console.log(req.session);
+//       req.session.user = user;
+//       return res.status(200).json(user);
+//     }
+//   }
+//   // user not found
+//   return res.status(404).json({
+//     message: "Invalid username or password"
+//   });
+// };
+
+const logout = async (req, res, next) => {
+  req.session.destroy(() => {});
+  return res.sendStatus(200);
+};
+
+
 
 module.exports = {
   login,
