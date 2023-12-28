@@ -32,7 +32,8 @@ const {
   md5Hash
 } = require("../utils/StringUtils");
 
-const chatRequestController = require('../controller/chatRequestController')
+const chatRequestController = require('../controller/chatRequestController');
+const roomService = require('../services/roomService')
 
 /** Initialize the app */
 const initializeMiddleware = async (sessionMiddleware, server) => {
@@ -103,9 +104,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
     });
     io.on("connection", async (socket) => {
       console.log("Connected socket");
-      // if (socket.request.session.user === undefined) {
-      //   return;
-      // }
+      let userId;
       // const userId = socket.request.session.user.id;
       // await sadd("online_users", userId);
 
@@ -117,40 +116,66 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
       // publish("user.connected", msg);
       // socket.broadcast.emit("user.connected", msg);
 
+
       socket.on("room.join", (id) => {
         socket.join(`room:${id}`);
       });
 
-      
+      socket.on("login", async (data) => {
+        data = {
+          ...data
+        };
+        const dataObject = JSON.stringify(data);
+        console.log(dataObject);
+        userId = data.uid;
+        console.log(userId);
+        const rooms = await roomService.getListRoomsByUserId(userId);
+        if (rooms) {
+          rooms.forEach(room => {
+            const userIdArray = [room.user1.id, room.user2.id];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+            console.log(roomKey);
+            socket.join(roomKey);
+          });
+        }
+      });
+
 
       let client;
 
-      socket.on('request_chat', (data) => {
+      socket.on('request_chat', () => {
         try {
-          client = JSON.parse(data);
-          console.log(`${client.uid} Requesting chat`);
-          chatRequestController.addNewRequest(client.uid, (match_result) => {
+          chatRequestController.addNewRequest(userId, async (match_result) => {
             console.log('emit response');
             const id1 = match_result[0];
             const id2 = match_result[1];
             let partner_id = id2;
-            if (client.uid == id2) partner_id = id1;
-    
+            if (userId == id2) partner_id = id1;
+
             const result = {
               message: 'matched',
               partner_id: partner_id,
             };
+            const room = await roomService.createRoom(id1, id2);
+            console.log(room);
+            // await zadd(roomKey, "" + message.date, messageString);
+            const userIdArray = [id1, id2];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+            console.log(roomKey);
+            socket.join(roomKey);
             socket.emit('request_chat', JSON.stringify(result, null, 4));
           });
         } catch (e) {
           console.log(e);
         }
       });
-      
+
       socket.on('disconnect', () => {
         chatRequestController.cancelRequest(client.uid);
       });
-    
+
       socket.on('cancel_request_chat', () => {
         chatRequestController.cancelRequest(client.uid);
       });
@@ -166,7 +191,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          * }} message
          **/
         async (message) => {
-          console.log(message);
+          const date = new Date();
+          message.date = date.getTime();
           /** Make sure nothing illegal is sent here. */
           message = {
             ...message,
@@ -179,9 +205,15 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           // await sadd("online_users", message.from);
           // /** We've got a new message. Store it in db, then send back to the room. */
           const messageString = JSON.stringify(message);
+          console.log(messageString);
           const sender_id = message.sender_id.toString();
           const receiver_id = message.receiver_id.toString();
-          const roomKey = 'room' + md5Hash(receiver_id + sender_id);
+          console.log(receiver_id);
+          console.log(sender_id);
+          const userIdArray = [sender_id, receiver_id];
+          userIdArray.sort();
+          console.log(userIdArray);
+          const roomKey = 'room' + md5Hash(userIdArray.join(''));
           console.log(roomKey);
           // /**
           //  * It may be possible that the room is private and new, so it won't be shown on the other
@@ -304,7 +336,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           } else {
             console.log("Dont exits room");
           }
-          
+
         }
       );
 
@@ -326,12 +358,12 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           // await sadd("online_users", message.from);
           // /** We've got a new message. Store it in db, then send back to the room. */
           const messageString = JSON.stringify(message);
-          
+
           const uid = message.uid.toString();
           const partner_id = message.partner_id.toString();
           const roomKey = 'room' + md5Hash(uid + partner_id);
           const messageEmit = {
-            "partner_id" : partner_id
+            "partner_id": partner_id
           }
           console.log(roomKey);
           // /**
