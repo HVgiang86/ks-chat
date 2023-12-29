@@ -11,11 +11,12 @@ import vn.id.hvg.kschat.contants.EMAIL_REGEX
 import vn.id.hvg.kschat.contants.LoginState
 import vn.id.hvg.kschat.contants.PASSWORD_REGEX
 import vn.id.hvg.kschat.data.repositories.AuthRepository
+import vn.id.hvg.kschat.data.repositories.UserRepository
 import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val authRepository: AuthRepository) : ViewModel() {
+class LoginViewModel @Inject constructor(private val authRepository: AuthRepository, private val userRepository: UserRepository) : ViewModel() {
     var emailLiveData = MutableLiveData<String>()
     var passwordLiveData = MutableLiveData<String>()
 

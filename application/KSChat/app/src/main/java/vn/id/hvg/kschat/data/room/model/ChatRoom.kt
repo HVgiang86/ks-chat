@@ -13,5 +13,5 @@ import androidx.room.PrimaryKey
 data class ChatRoom(
     @PrimaryKey val roomId: String,
     val isCurrentChat: Boolean,
-    val roomName: String
+    val roomName: String,
 )

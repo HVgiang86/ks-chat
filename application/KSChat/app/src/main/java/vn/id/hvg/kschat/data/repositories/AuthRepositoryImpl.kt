@@ -10,7 +10,8 @@ import vn.id.hvg.kschat.data.network.api.RefreshTokenApi
 import vn.id.hvg.kschat.data.network.api.UnauthenticatedApi
 import vn.id.hvg.kschat.data.network.model.auth.RefreshTokenResponse
 import vn.id.hvg.kschat.data.network.retrofit.apiauth.JwtTokenManager
-import vn.id.hvg.kschat.data.userstate.UserStateManager
+import vn.id.hvg.kschat.data.room.dao.UserDao
+import vn.id.hvg.kschat.data.room.model.User
 import javax.inject.Inject
 
 
@@ -19,7 +20,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val tokenResponse: RefreshTokenApi,
     private val unauthenticatedApi: UnauthenticatedApi,
     private val jwtTokenManager: JwtTokenManager,
-    private val userStateManager: UserStateManager
+    private val userDao: UserDao
 ) : AuthRepository {
     override suspend fun login(
         email: String, password: String, loginState: MutableLiveData<LoginState>
@@ -34,6 +35,9 @@ class AuthRepositoryImpl @Inject constructor(
 
                 val token = response.body()?.token
                 val refreshToken = response.body()?.refreshToken
+                val userId = response.body()?.uid
+                userDao.deleteAllUser()
+                userDao.insertUser(User(userId.toString(), null, null))
                 loginState.postValue(LoginState.SUCCESS)
                 runBlocking {
                     jwtTokenManager.saveAccessJwt(token.toString())
@@ -63,7 +67,8 @@ class AuthRepositoryImpl @Inject constructor(
                 Log.d("HEHE", "${response.code()}")
                 registerState.postValue(RegisterState.SUCCESS)
                 val id = response.body()?.data?.id
-                runBlocking { userStateManager.saveUserId(id.toString()) }
+                userDao.deleteAllUser()
+                userDao.insertUser(User(id.toString(), null, null))
             } else {
                 Log.d("HEH", "${response.code()}")
                 when (response.code()) {

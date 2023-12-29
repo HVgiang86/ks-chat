@@ -10,7 +10,10 @@ import vn.id.hvg.kschat.data.network.api.UnauthenticatedApi
 import vn.id.hvg.kschat.data.network.retrofit.apiauth.JwtTokenManager
 import vn.id.hvg.kschat.data.repositories.AuthRepository
 import vn.id.hvg.kschat.data.repositories.AuthRepositoryImpl
-import vn.id.hvg.kschat.data.userstate.UserStateManager
+import vn.id.hvg.kschat.data.repositories.UserRepository
+import vn.id.hvg.kschat.data.repositories.UserRepositoryImpl
+import vn.id.hvg.kschat.data.room.dao.ProfileDao
+import vn.id.hvg.kschat.data.room.dao.UserDao
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -23,14 +26,34 @@ class RepositoryModule {
         tokenResponse: RefreshTokenApi,
         unauthenticatedApi: UnauthenticatedApi,
         jwtTokenManager: JwtTokenManager,
-        userStateManager: UserStateManager
+        userDao: UserDao
     ): AuthRepository {
         return AuthRepositoryImpl(
             authenticatedApi = authenticatedApi,
             tokenResponse = tokenResponse,
             unauthenticatedApi = unauthenticatedApi,
             jwtTokenManager = jwtTokenManager,
-            userStateManager = userStateManager,
+            userDao = userDao
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        authenticatedApi: AuthenticatedApi,
+        tokenResponse: RefreshTokenApi,
+        unauthenticatedApi: UnauthenticatedApi,
+        jwtTokenManager: JwtTokenManager,
+        userDao: UserDao,
+        profileDao: ProfileDao
+    ): UserRepository {
+        return UserRepositoryImpl(
+            authenticatedApi = authenticatedApi,
+            tokenResponse = tokenResponse,
+            unauthenticatedApi = unauthenticatedApi,
+            jwtTokenManager = jwtTokenManager,
+            userDao = userDao,
+            profileDao = profileDao
         )
     }
 }

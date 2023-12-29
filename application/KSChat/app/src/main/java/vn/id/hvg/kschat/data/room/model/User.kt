@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user")
 data class User(
-    @PrimaryKey val id: Int,
-    val sharedProfileId: List<String>
+    @PrimaryKey val id: String,
+    val sharedProfileId: List<String>?,
+    val friendId: List<String>?,
 )

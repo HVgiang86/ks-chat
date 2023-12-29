@@ -9,6 +9,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class LoginResponse(
     @SerializedName("message") @Expose val message: String,
+    @SerializedName("uid") @Expose val uid: String,
     @SerializedName("access_token") @Expose val token: String?,
     @SerializedName("refresh_token") @Expose val refreshToken: String?
 ) : Parcelable
