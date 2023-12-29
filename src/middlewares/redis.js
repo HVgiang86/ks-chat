@@ -61,6 +61,16 @@ module.exports = {
     ),
   zadd: (key = "key", key2 = "", value) =>
     new Promise((a, b) => client.zadd(key, key2, value, resolvePromise(a, b))),
+  zaddEmpty: (key = "key") =>
+    new Promise(async (resolve, reject) => {
+      try {
+        await client.zadd(key, 0, "dummyMember");
+        await client.zrem(key, "dummyMember");
+        resolve(true); 
+      } catch (err) {
+        reject(err); 
+      }
+    }),
   sadd: (key = "key", value) =>
     new Promise((a, b) => client.sadd(key, value, resolvePromise(a, b))),
   hmget: (key = "key", key2 = "") =>
