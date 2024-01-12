@@ -10,11 +10,45 @@ jobs:
   build:
     name: GAE Deploy
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.gcp_credentials }}'
-      - uses: google-github-actions/deploy-appengine@main
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure environments
+        run: npm run configure:ci
+
+      - name: Build
+        run: npm run build:ci
+        env:
+          PORT: ${{ vars.PORT }}
+          ACCESS_TOKEN: ${{ vars.ACCESS_TOKEN }}
+          REFRESH_TOKEN: ${{ vars.REFRESH_TOKEN }}
+          REDIS_ENDPOINT_URL: ${{ vars.REDIS_ENDPOINT_URL }}
+          REDIS_PASSWORD: ${{ vars.REDIS_PASSWORD }}
+
+      - name: Configure app.yaml
+        run: npm run app-config:ci
+
+      - id: Deploy
+        uses: google-github-actions/deploy-appengine@main
         with:
           credentials: ${{ secrets.gcp_credentials }}
+          deliverables: ./app.yaml
+          promote: true
