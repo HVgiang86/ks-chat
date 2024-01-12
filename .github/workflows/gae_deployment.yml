@@ -5,13 +5,36 @@ on:
     branches:
       - dev
   workflow_dispatch:
-
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
 jobs:
   build:
     name: GAE Deploy
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v2
-      - uses: google-github-actions/deploy-appengine@main
+      - uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.gcp_credentials }}'
+
+      - id: generate-dotenv-file
+        env:
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        run: echo "$SESSION_SECRET" > .env-for-app-yaml
+
+      - id: prepare-app-yaml
+        uses: mshick/fast-envsubst@v1
+        with:
+          env-file: .env-for-app-yaml
+          in-file: app.yaml.template
+          out-file: app.yaml
+
+      - id: Deploy
+        uses: google-github-actions/deploy-appengine@main
+
         with:
           credentials: ${{ secrets.gcp_credentials }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+          deliverables: app.yaml
+          promote: true
