@@ -3,14 +3,10 @@ const mongoose = require('mongoose');
 const RoomSchema = new mongoose.Schema(
   {
     user1: {
-      id: { type: mongoose.Schema.Types.ObjectId, required: true },
-      avatar: { type: String },
-      name: { type: String },
+      id: { type: mongoose.Schema.Types.ObjectId, required: true }
     },
     user2: {
-      id: { type: mongoose.Schema.Types.ObjectId, required: true },
-      avatar: { type: String },
-      name: { type: String },
+      id: { type: mongoose.Schema.Types.ObjectId, required: true }
     },
   },
   {
