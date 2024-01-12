@@ -4,13 +4,13 @@ const RoomSchema = new mongoose.Schema(
   {
     user1: {
       id: { type: mongoose.Schema.Types.ObjectId, required: true },
-      avatar: { type: String },
-      name: { type: String },
+      uri: { type: String },
+      nick_name: { type: String },
     },
     user2: {
       id: { type: mongoose.Schema.Types.ObjectId, required: true },
-      avatar: { type: String },
-      name: { type: String },
+      uri: { type: String },
+      nick_name: { type: String },
     },
   },
   {

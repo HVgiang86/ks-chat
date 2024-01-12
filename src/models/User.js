@@ -9,9 +9,9 @@ const UserSchema = new mongoose.Schema(
     dateOfBirth: { type: Date, required: true },
     gender: { type: String, required: true },
     bio: { type: String },
-    age: { type: Number },
     interest: { type: String },
     country: { type: String, default: 'VN' },
+    avatar: { type: String },
     publicUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,
