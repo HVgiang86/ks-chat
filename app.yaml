@@ -1,0 +1,5 @@
+runtime: nodejs18
+service: default
+network:
+  forwarded_ports:
+    - 3000/tcp
