@@ -3,7 +3,7 @@ name: Build and deploy Node.js app to Google Cloud App Engine - kschat
 on:
   push:
     branches:
-      - deployment
+      - dev
   workflow_dispatch:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
