@@ -1,4 +1,4 @@
-runtime: nodejs16
+runtime: nodejs18
 env: standard
 env_variables:
   SESSION_SECRET: $SESSION_SECRET
