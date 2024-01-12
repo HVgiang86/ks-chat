@@ -13,53 +13,38 @@ const {
   sub,
   auth: runRedisAuth,
   zaddEmpty,
-} = require("./redis");
-const {
-  createUser,
-  makeUsernameKey,
-  createPrivateRoom,
-  sanitise,
-  getMessages,
-} = require("./utils");
-const {
-  createDemoData
-} = require("./demo-data");
-const {
-  PORT,
-  SERVER_ID
-} = require("./config");
+} = require('./redis');
+const { createUser, makeUsernameKey, createPrivateRoom, sanitise, getMessages } = require('./utils');
+const { createDemoData } = require('./demo-data');
+const { PORT, SERVER_ID } = require('./config');
 
-const {
-  md5Hash
-} = require("../utils/StringUtils");
-var validationRegex = new RegExp("^[0-9a-fA-F]{24}$");
+const { random } = require('../utils/NameUtils');
+
+const { md5Hash } = require('../utils/StringUtils');
+var validationRegex = new RegExp('^[0-9a-fA-F]{24}$');
 const chatRequestController = require('../controller/chatRequestController');
 const roomService = require('../services/roomService');
-const {
-  STATUS
-} = require('../common/Socket')
-const {
-  createResponseMessage
-} = require('../utils/ResponseSocket')
+const { STATUS } = require('../common/Socket');
+const { createResponseMessage } = require('../utils/ResponseSocket');
 
 /** Initialize the app */
 const initializeMiddleware = async (sessionMiddleware, server) => {
   /** @type {SocketIO.Server} */
   const io =
     /** @ts-ignore */
-    require("socket.io")(server);
+    require('socket.io')(server);
   const publish = (type, data) => {
     const outgoing = {
       serverId: SERVER_ID,
       type,
       data,
     };
-    redisClient.publish("MESSAGES", JSON.stringify(outgoing));
+    redisClient.publish('MESSAGES', JSON.stringify(outgoing));
   };
 
   const initPubSub = () => {
     /** We don't use channels here, since the contained message contains all the necessary data. */
-    sub.on("message", (_, message) => {
+    sub.on('message', (_, message) => {
       /**
        * @type {{
        *   serverId: string;
@@ -67,18 +52,14 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
        *   data: object;
        * }}
        **/
-      const {
-        serverId,
-        type,
-        data
-      } = JSON.parse(message);
+      const { serverId, type, data } = JSON.parse(message);
       /** We don't handle the pub/sub messages if the server is the same */
       if (serverId === SERVER_ID) {
         return;
       }
       io.emit(type, data);
     });
-    sub.subscribe("MESSAGES");
+    sub.subscribe('MESSAGES');
   };
   /** Need to submit the password from the local stuff. */
   await runRedisAuth();
@@ -109,28 +90,27 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
       // sessionMiddleware(socket.request, socket.request.res, next); will not work with websocket-only
       // connections, as 'socket.request.res' will be undefined in that case
     });
-    io.on("connection", async (socket) => {
-      console.log("Connected socket");
+    io.on('connection', async (socket) => {
+      console.log('Connected socket');
       let userId;
 
-
-      socket.on("login", async (data) => {
+      socket.on('login', async (data) => {
         try {
           data = {
-            ...data
+            ...data,
           };
           const dataObject = JSON.stringify(data);
           console.log(dataObject);
           userId = data.uid;
           console.log(userId);
           if (!userId || !validationRegex.test(userId)) {
-            console.log("INVALID REQUEST");
+            console.log('INVALID REQUEST');
             socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
             return;
           }
           const rooms = await roomService.getListRoomsByUserId(userId);
           if (rooms) {
-            rooms.forEach(room => {
+            rooms.forEach((room) => {
               const userIdArray = [room.user1.id, room.user2.id];
               userIdArray.sort();
               const roomKey = 'room' + md5Hash(userIdArray.join(''));
@@ -139,14 +119,11 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             });
           }
           socket.emit('login', createResponseMessage(STATUS.SUCCESS, data));
-
         } catch (error) {
           console.log(error);
           socket.emit('login', createResponseMessage(STATUS.ERROR, {}));
         }
-
       });
-
 
       let client;
 
@@ -164,7 +141,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               partner_id: partner_id,
             };
             const checkCreate = userId > partner_id;
-            if(checkCreate){
+            if (checkCreate) {
+              await random(id1, id2);
               const room = await roomService.createRoom(id1, id2);
               console.log(room);
             }
@@ -192,7 +170,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
       });
 
       socket.on(
-        "message",
+        'message',
         /**
          * @param {{
          *  sender_id : string
@@ -204,7 +182,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         async (message) => {
           try {
             if (!message.sender_id || !message.receiver_id || !message.content) {
-              console.log("INVALID REQUEST");
+              console.log('INVALID REQUEST');
               socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
               return;
             }
@@ -213,7 +191,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             /** Make sure nothing illegal is sent here. */
             message = {
               ...message,
-              content: sanitise(message.content)
+              content: sanitise(message.content),
             };
 
             const messageString = JSON.stringify(message);
@@ -229,31 +207,26 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             console.log(roomKey);
             const roomHasMessages = await exists(roomKey);
             if (!roomHasMessages) {
-
               const msg = {
                 id: roomKey,
-                names: [
-                  await hmget(`user:${receiver_id}`, "username"),
-                  await hmget(`user:${sender_id}`, "username"),
-                ],
+                names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
               };
-              publish("show.room", msg);
+              publish('show.room', msg);
               socket.broadcast.emit(`show.room`, msg);
             }
             socket.join(roomKey);
-            await zadd(roomKey, "" + message.date, messageString);
-            publish("message", message);
-            io.to(roomKey).emit("message", createResponseMessage(STATUS.SUCCESS, message));
+            await zadd(roomKey, '' + message.date, messageString);
+            publish('message', message);
+            io.to(roomKey).emit('message', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
             socket.emit('message', createResponseMessage(STATUS.ERROR, {}));
           }
-
         }
       );
 
       socket.on(
-        "send_image",
+        'send_image',
         /**
          * @param {{
          *  sender_id : string
@@ -267,13 +240,13 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             console.log(message);
             /** Make sure nothing illegal is sent here. */
             if (!message.sender_id || !message.receiver_id || !message.url) {
-              console.log("INVALID REQUEST");
+              console.log('INVALID REQUEST');
               socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
               return;
             }
             message = {
               ...message,
-              url: sanitise(message.url)
+              url: sanitise(message.url),
             };
             /**
              * The user might be set as offline if he tried to access the chat from another tab, pinging by message
@@ -293,30 +266,25 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             // const isPrivate = !(await exists(`${roomKey}:name`));
             const roomHasMessages = await exists(roomKey);
             if (!roomHasMessages) {
-
               const msg = {
                 id: roomKey,
-                names: [
-                  await hmget(`user:${receiver_id}`, "username"),
-                  await hmget(`user:${sender_id}`, "username"),
-                ],
+                names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
               };
-              publish("show.room", msg);
+              publish('show.room', msg);
               socket.broadcast.emit(`show.room`, msg);
             }
-            await zadd(roomKey, "" + message.date, messageString);
-            publish("send_image", message);
-            io.to(roomKey).emit("send_image", createResponseMessage(STATUS.SUCCESS, message));
+            await zadd(roomKey, '' + message.date, messageString);
+            publish('send_image', message);
+            io.to(roomKey).emit('send_image', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
             socket.emit('login', createResponseMessage(STATUS.ERROR, {}));
           }
-
         }
       );
 
       socket.on(
-        "share_profile",
+        'share_profile',
         /**
          * @param {{
          *  sender_id : string
@@ -344,27 +312,22 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           // const isPrivate = !(await exists(`${roomKey}:name`));
           const roomExists = await exists(roomKey);
           if (roomExists) {
-
             const msg = {
               id: roomKey,
-              names: [
-                await hmget(`user:${receiver_id}`, "username"),
-                await hmget(`user:${sender_id}`, "username"),
-              ],
+              names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
             };
-            publish("show.room", msg);
+            publish('show.room', msg);
             socket.broadcast.emit(`show.room`, msg);
-            io.to(roomKey).emit("share_profile", message);
-            publish("share_profile", message);
+            io.to(roomKey).emit('share_profile', message);
+            publish('share_profile', message);
           } else {
-            console.log("Dont exits room");
+            console.log('Dont exits room');
           }
-
         }
       );
 
       socket.on(
-        "end_chat",
+        'end_chat',
         /**
          * @param {{
          *  uid : string
@@ -387,8 +350,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const partner_id = message.partner_id.toString();
             const roomKey = 'room' + md5Hash(uid + partner_id);
             const messageEmit = {
-              "partner_id": partner_id
-            }
+              partner_id: partner_id,
+            };
             console.log(roomKey);
 
             // /**
@@ -401,35 +364,31 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               const res = await roomService.deleteRoom(uid, partner_id);
               console.log(res);
               if (res.deletedCount !== 0) {
-                console.log("deleted");
-                io.to(roomKey).emit("end_chat", messageEmit);
-                publish("end_chat", message);
+                console.log('deleted');
+                io.to(roomKey).emit('end_chat', messageEmit);
+                publish('end_chat', message);
               }
             } else {
-              console.log("Dont exits room");
+              console.log('Dont exits room');
             }
-          } catch (error) {
-
-          }
-
+          } catch (error) {}
         }
       );
 
-      socket.on("disconnect", async () => {
-        console.log("dis");
+      socket.on('disconnect', async () => {
+        console.log('dis');
         const userId = socket.request.session.user.id;
-        await srem("online_users", userId);
+        await srem('online_users', userId);
         const msg = {
           ...socket.request.session.user,
           online: false,
         };
-        publish("user.disconnected", msg);
-        socket.broadcast.emit("user.disconnected", msg);
+        publish('user.disconnected', msg);
+        socket.broadcast.emit('user.disconnected', msg);
       });
     });
-
   }
 };
 module.exports = {
-  initializeMiddleware
+  initializeMiddleware,
 };

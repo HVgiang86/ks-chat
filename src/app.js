@@ -11,48 +11,44 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const yaml = require('yamljs');
-const {
-  mongoose
-} = require('mongoose');
+const { mongoose } = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
-const {
-  initializeMiddleware
-} = require('./middlewares/index');
+const { initializeMiddleware } = require('./middlewares/index');
 
 const app = express();
-const server = require("http").createServer(app);
-const {
-  client: redisClient,
-  sub,
-  auth: runRedisAuth,
-} = require("./middlewares/redis");
+const server = require('http').createServer(app);
+const { client: redisClient, sub, auth: runRedisAuth } = require('./middlewares/redis');
 // Config middlewares
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: false
-}));
+app.use(
+  express.urlencoded({
+    extended: false,
+  })
+);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../dist')));
 
 const sessionMiddleware = session({
   store: new RedisStore({
-    client: redisClient
+    client: redisClient,
   }),
   secret: 'keyboard cat',
   saveUninitialized: true,
   resave: true,
 });
-app.use(sessionMiddleware)
+app.use(sessionMiddleware);
 initializeMiddleware(sessionMiddleware, server);
 // Define routing here
 routes(app);
@@ -81,7 +77,7 @@ app.use((req, res) => {
   // respond with html page
   if (req.accepts('html')) {
     res.render('404', {
-      url: req.url
+      url: req.url,
     });
     return;
   }
@@ -89,7 +85,7 @@ app.use((req, res) => {
   // respond with json
   if (req.accepts('json')) {
     res.json({
-      error: 'Not found'
+      error: 'Not found',
     });
     return;
   }
@@ -119,7 +115,6 @@ mongoose
   });
 
 const port = process.env.PORT || 4000;
-server.listen(port, "0.0.0.0", () =>
-  console.log(`Listening on ${port}...`)
-);
+server.listen(port, '0.0.0.0', () => console.log(`Listening on ${port}...`));
+
 module.exports = app;
