@@ -7,11 +7,14 @@ const getListRoomsByUserId = async (uid) => {
     }
 
     const rooms = await Room.find({
-      $or: [{
-        'user1.id': uid
-      }, {
-        'user2.id': uid
-      }]
+      $or: [
+        {
+          'user1.id': uid,
+        },
+        {
+          'user2.id': uid,
+        },
+      ],
     });
     return rooms;
   } catch (error) {
@@ -22,23 +25,21 @@ const getListRoomsByUserId = async (uid) => {
 
 const deleteRoom = async (uid1, uid2) => {
   try {
-
     if (!uid1 || !uid2) {
-      console.log("Invalid param");
+      console.log('Invalid param');
       return null;
     }
     const response = await Room.deleteOne({
-
-      $or: [{
+      $or: [
+        {
           'user1.id': uid1,
-          'user2.id': uid2
+          'user2.id': uid2,
         },
         {
           'user1.id': uid2,
-          'user2.id': uid1
+          'user2.id': uid1,
         },
       ],
-
     });
 
     return response;
@@ -73,5 +74,5 @@ const createRoom = async (uid1, uid2) => {
 module.exports = {
   getListRoomsByUserId,
   createRoom,
-  deleteRoom
+  deleteRoom,
 };

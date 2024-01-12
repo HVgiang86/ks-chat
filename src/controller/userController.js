@@ -57,7 +57,7 @@ const getUserById = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, dateOfBirth, gender, bio, age, interest } = req.body;
+    const { firstName, lastName, dateOfBirth, gender, bio, interest, country, avatar } = req.body;
     const { uid } = req;
     if (!uid) {
       return res.status(400).json({
@@ -71,8 +71,9 @@ const updateUser = async (req, res, next) => {
       dateOfBirth,
       gender,
       bio,
-      age,
+      country,
       interest,
+      avatar,
     };
 
     const user = await User.findOne({ _id: uid });
@@ -145,9 +146,35 @@ const changePasswordUser = async (req, res, next) => {
   }
 };
 
+// [POST] /api/users/share-profile
+const shareProfile = async (req, res, next) => {
+  try {
+    const { partnerId } = req.body;
+    const { uid } = req;
+
+    // Check if partner exist
+    const partner = await User.findById(partnerId);
+    if (!partner) {
+      return res.status(404).json({ message: 'Partner not found' });
+    }
+
+    // Update the partner's publicUsers array
+    partner.publicUsers.push(uid);
+    await partner.save();
+
+    return res.status(200).json({ message: 'Added to publicUsers successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
 module.exports = {
   getMe,
   getUserById,
   updateUser,
   changePasswordUser,
+  shareProfile,
 };
