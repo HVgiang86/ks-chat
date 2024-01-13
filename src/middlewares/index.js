@@ -14,19 +14,38 @@ const {
   auth: runRedisAuth,
   zaddEmpty,
 } = require('./redis');
-const { createUser, makeUsernameKey, createPrivateRoom, sanitise, getMessages } = require('./utils');
-const { createDemoData } = require('./demo-data');
-const { PORT, SERVER_ID } = require('./config');
+const {
+  createUser,
+  makeUsernameKey,
+  createPrivateRoom,
+  sanitise,
+  getMessages
+} = require('./utils');
+const {
+  createDemoData
+} = require('./demo-data');
+const {
+  PORT,
+  SERVER_ID
+} = require('./config');
 
-const { random } = require('../utils/NameUtils');
+const {
+  random
+} = require('../utils/NameUtils');
 
-const { md5Hash } = require('../utils/StringUtils');
+const {
+  md5Hash
+} = require('../utils/StringUtils');
 var validationRegex = new RegExp('^[0-9a-fA-F]{24}$');
 const chatRequestController = require('../controller/chatRequestController');
 const roomService = require('../services/roomService');
 const messageService = require('../services/messageService');
-const { STATUS } = require('../common/Socket');
-const { createResponseMessage } = require('../utils/ResponseSocket');
+const {
+  STATUS
+} = require('../common/Socket');
+const {
+  createResponseMessage
+} = require('../utils/ResponseSocket');
 
 const ACTIVE_STATUS = 'ACTIVE';
 
@@ -55,7 +74,11 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
        *   data: object;
        * }}
        **/
-      const { serverId, type, data } = JSON.parse(message);
+      const {
+        serverId,
+        type,
+        data
+      } = JSON.parse(message);
       /** We don't handle the pub/sub messages if the server is the same */
       if (serverId === SERVER_ID) {
         return;
@@ -113,7 +136,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           }
           const rooms = await roomService.getActiveRoomsByUserId(userId);
           console.log(`GET ACTIVE ROOM: ${rooms}`);
-          if (rooms) {
+          if (Array.isArray(rooms)) {
             rooms.forEach((room) => {
               const userIdArray = [room.user1.id, room.user2.id];
               userIdArray.sort();
@@ -122,7 +145,15 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               console.log(`GET ACTIVE ROOM: ${userIdArray}`);
               socket.join(roomKey);
             });
+          } else if (typeof rooms === 'object') {
+            const userIdArray = [rooms.user1.id, rooms.user2.id];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+            console.log(roomKey);
+            console.log(`GET ACTIVE ROOM: ${userIdArray}`);
+            socket.join(roomKey);
           }
+
           socket.emit('login', createResponseMessage(STATUS.SUCCESS, data));
         } catch (error) {
           console.log(error);
