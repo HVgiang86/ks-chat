@@ -1,8 +1,8 @@
-const Message = require('../models/Room');
+const Message = require('../models/Message');
 
 const createMessage = async ({ sender, receiver, message, roomId, type }) => {
   try {
-    if (!sender || !receiver || !message || !roomId || !type) {
+    if (!sender || !receiver || !message || !roomId ) {
       return null;
     }
 
