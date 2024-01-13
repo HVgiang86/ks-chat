@@ -180,7 +180,53 @@ const changePasswordUser = async (req, res, next) => {
   }
 };
 
-// [POST] /api/users/share-profile
+// [PUT] /api/users/un-friend
+const unFriend = async (req, res, next) => {
+  try {
+    const { partnerId } = req.body;
+    const { uid } = req;
+
+    // Check if partner exist
+    const partner = await User.findById(partnerId);
+    const currentUser = await User.findById(uid);
+    if (!partner) {
+      return res.status(404).json({ message: 'Partner not found' });
+    }
+    console.log('>>partner', partner);
+    console.log('>>currentUser', currentUser);
+    const indexPartner = partner.friendList.findIndex((item) => item.toString() === uid);
+    const indexCurrent = currentUser.friendList.findIndex((item) => item.toString() === partnerId);
+
+    // check if my id exist list friend
+    if (indexPartner > -1) {
+      return res.status(304).json({
+        message: 'Nothing!',
+      });
+    }
+
+    // check if partner id exist in my list friend
+    if (indexCurrent > -1) {
+      return res.status(304).json({
+        message: 'Nothing!',
+      });
+    }
+
+    partner.friendList.splice(indexPartner, 1);
+    currentUser.friendList.splice(indexCurrent, 1);
+
+    await partner.save();
+    await currentUser.save();
+
+    return res.status(200).json({ message: 'Unfriendlist successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
+// [PUT] /api/users/share-profile
 const shareProfile = async (req, res, next) => {
   try {
     const { partnerId } = req.body;
@@ -188,16 +234,59 @@ const shareProfile = async (req, res, next) => {
 
     // Check if partner exist
     const partner = await User.findById(partnerId);
-    console.log(partner);
+    if (!partner) {
+      return res.status(404).json({ message: 'Partner not found' });
+    }
+
+    // check if my id exist in partner
+    const isExist = partner.publicUsers.includes(uid);
+    if (isExist) {
+      return res.status(304).json({
+        message: 'Nothing!',
+      });
+    }
+
+    partner.publicUsers.push(uid);
+
+    const currentUser = await User.findById(uid);
+    if (currentUser.publicUsers.includes(partnerId)) {
+      currentUser.friendList.push(partnerId);
+      partner.friendList.push(uid);
+    }
+    await currentUser.save();
+    await partner.save();
+
+    return res.status(200).json({ message: 'Added to publicUsers successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
+// [PUT] /api/users/un-share-profile
+const unShareProfile = async (req, res, next) => {
+  try {
+    const { partnerId } = req.body;
+    const { uid } = req;
+
+    // Check if partner exist
+    const partner = await User.findById(partnerId);
     if (!partner) {
       return res.status(404).json({ message: 'Partner not found' });
     }
 
     // Update the partner's publicUsers array
-    partner.publicUsers.push(uid);
-    await partner.save();
+    const index = partner.publicUsers.findIndex((item) => item.toString() === uid);
 
-    return res.status(200).json({ message: 'Added to publicUsers successfully' });
+    if (index > -1) {
+      partner.publicUsers.splice(index, 1);
+      await partner.save();
+      return res.status(200).json({ message: 'Remove from publicUsers successfully' });
+    }
+
+    return res.status(304).json({ message: 'You are not in publicUsers!' });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -213,4 +302,6 @@ module.exports = {
   updateUser,
   changePasswordUser,
   shareProfile,
+  unShareProfile,
+  unFriend,
 };
