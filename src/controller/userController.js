@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
+
 const User = require('../models/User');
+const Message = require('../models/Message');
 
 const getMe = async (req, res, next) => {
   try {
@@ -46,6 +48,38 @@ const getUserById = async (req, res, next) => {
     return res.status(200).json({
       message: 'Find user successfully',
       data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
+const getAllMessage = async (req, res, next) => {
+  try {
+    const { uid } = req;
+    if (!uid) {
+      return res.status(400).json({
+        message: 'Missing user id!',
+      });
+    }
+
+    const listMessage = await Message.find({
+      $or: [
+        {
+          sender: uid,
+        },
+        {
+          receiver: uid,
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      message: 'Get list message success!',
+      data: listMessage,
     });
   } catch (error) {
     console.log(error);
@@ -174,6 +208,7 @@ const shareProfile = async (req, res, next) => {
 module.exports = {
   getMe,
   getUserById,
+  getAllMessage,
   updateUser,
   changePasswordUser,
   shareProfile,
