@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const RoomSchema = new mongoose.Schema(
   {
+    status: { type: String, default: 'ACTIVE' },
     user1: {
       id: { type: mongoose.Schema.Types.ObjectId, required: true },
       uri: { type: String },

@@ -7,7 +7,8 @@ const getListRoomsByUserId = async (uid) => {
     }
 
     const rooms = await Room.find({
-      $or: [{
+      $or: [
+        {
           'user1.id': uid,
         },
         {
@@ -29,7 +30,8 @@ const deleteRoom = async (uid1, uid2) => {
       return null;
     }
     const response = await Room.deleteOne({
-      $or: [{
+      $or: [
+        {
           'user1.id': uid1,
           'user2.id': uid2,
         },
@@ -39,6 +41,39 @@ const deleteRoom = async (uid1, uid2) => {
         },
       ],
     });
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const disableRoom = async (uid1, uid2) => {
+  try {
+    if (!uid1 || !uid2) {
+      console.log('Invalid param');
+      return null;
+    }
+    const response = await Room.findByIdAndUpdate(
+      {
+        $or: [
+          {
+            'user1.id': uid1,
+            'user2.id': uid2,
+          },
+          {
+            'user1.id': uid2,
+            'user2.id': uid1,
+          },
+        ],
+      },
+      {
+        $set: {
+          status: 'INACTIVE',
+        },
+      }
+    );
 
     return response;
   } catch (error) {
@@ -88,4 +123,5 @@ module.exports = {
   createRoom,
   deleteRoom,
   createRoomObject,
+  disableRoom,
 };
