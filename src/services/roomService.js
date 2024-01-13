@@ -48,7 +48,7 @@ const getActiveRoomsByUserId = async (uid) => {
   }
 };
 
-const getRoomsBetweenUserId = async (uid1, uid2) => {
+const getRoomsBetweenUserId = async (uid1, uid2, status) => {
   try {
     if (!uid1 || !uid2) {
       console.log('Invalid param');
@@ -59,10 +59,12 @@ const getRoomsBetweenUserId = async (uid1, uid2) => {
         {
           'user1.id': uid1,
           'user2.id': uid2,
+          status,
         },
         {
           'user1.id': uid2,
           'user2.id': uid1,
+          status,
         },
       ],
     });
