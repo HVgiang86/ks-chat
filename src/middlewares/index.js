@@ -14,38 +14,19 @@ const {
   auth: runRedisAuth,
   zaddEmpty,
 } = require('./redis');
-const {
-  createUser,
-  makeUsernameKey,
-  createPrivateRoom,
-  sanitise,
-  getMessages
-} = require('./utils');
-const {
-  createDemoData
-} = require('./demo-data');
-const {
-  PORT,
-  SERVER_ID
-} = require('./config');
+const { createUser, makeUsernameKey, createPrivateRoom, sanitise, getMessages } = require('./utils');
+const { createDemoData } = require('./demo-data');
+const { PORT, SERVER_ID } = require('./config');
 
-const {
-  random
-} = require('../utils/NameUtils');
+const { random } = require('../utils/NameUtils');
 
-const {
-  md5Hash
-} = require('../utils/StringUtils');
+const { md5Hash } = require('../utils/StringUtils');
 var validationRegex = new RegExp('^[0-9a-fA-F]{24}$');
 const chatRequestController = require('../controller/chatRequestController');
 const roomService = require('../services/roomService');
 const messageService = require('../services/messageService');
-const {
-  STATUS
-} = require('../common/Socket');
-const {
-  createResponseMessage
-} = require('../utils/ResponseSocket');
+const { STATUS } = require('../common/Socket');
+const { createResponseMessage } = require('../utils/ResponseSocket');
 
 const ACTIVE_STATUS = 'ACTIVE';
 
@@ -74,11 +55,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
        *   data: object;
        * }}
        **/
-      const {
-        serverId,
-        type,
-        data
-      } = JSON.parse(message);
+      const { serverId, type, data } = JSON.parse(message);
       /** We don't handle the pub/sub messages if the server is the same */
       if (serverId === SERVER_ID) {
         return;
@@ -135,12 +112,14 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             return;
           }
           const rooms = await roomService.getActiveRoomsByUserId(userId);
+          console.log(`GET ACTIVE ROOM: ${rooms}`);
           if (rooms) {
             rooms.forEach((room) => {
               const userIdArray = [room.user1.id, room.user2.id];
               userIdArray.sort();
               const roomKey = 'room' + md5Hash(userIdArray.join(''));
               console.log(roomKey);
+              console.log(`GET ACTIVE ROOM: ${userIdArray}`);
               socket.join(roomKey);
             });
           }
@@ -188,11 +167,11 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
       });
 
       socket.on('disconnect', () => {
-        chatRequestController.cancelRequest(client.uid);
+        chatRequestController.cancelRequest(userId);
       });
 
       socket.on('cancel_request_chat', () => {
-        chatRequestController.cancelRequest(client.uid);
+        chatRequestController.cancelRequest(userId);
       });
 
       socket.on(
@@ -248,8 +227,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               receiver: receiver_id,
               message: message.content,
               roomId: roomKey,
-              type: 'message'
-            })
+              type: 'message',
+            });
             io.to(roomKey).emit('message', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
@@ -304,8 +283,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               receiver: receiver_id,
               message: message.url,
               roomId: roomKey,
-              type: 'send_image'
-            })
+              type: 'send_image',
+            });
             io.to(roomKey).emit('send_image', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
@@ -332,7 +311,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const roomKey = 'room' + md5Hash(receiver_id + sender_id);
             console.log(roomKey);
             const roomExists = await exists(roomKey);
-            
+
             const room = await roomService.getRoomsBetweenUserId(sender_id, receiver_id, ACTIVE_STATUS);
             if (roomExists || room) {
               const msg = {
@@ -351,7 +330,6 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             socket.emit('share_profile', createResponseMessage(STATUS.ERROR, {}));
           }
         }
-
       );
 
       socket.on(
@@ -378,9 +356,9 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const roomExists = await exists(roomKey);
             const room = await roomService.getRoomsBetweenUserId(uid, partner_id, ACTIVE_STATUS);
             if (roomExists || room) {
-              const res = await roomService.disableRoom(uid, partner_id);
+              const res = await roomService.disableRoom(uid, partner_id, ACTIVE_STATUS);
               console.log(res);
-              if (res.deletedCount !== 0) {
+              if (res) {
                 console.log('deleted');
                 io.to(roomKey).emit('end_chat', messageEmit);
                 publish('end_chat', message);

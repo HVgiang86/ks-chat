@@ -59,17 +59,19 @@ const getRoomsBetweenUserId = async (uid1, uid2, status) => {
         {
           'user1.id': uid1,
           'user2.id': uid2,
-          status,
+          status: status,
         },
         {
           'user1.id': uid2,
           'user2.id': uid1,
-          status,
+          status: status,
         },
       ],
     });
 
-    if (response.length > 0) {
+    console.log(`GET ROOM: ${response}`);
+
+    if (response) {
       return response;
     }
     return null;
@@ -110,16 +112,16 @@ const deleteRoom = async (uid1, uid2) => {
   }
 };
 
-const disableRoom = async (uid1, uid2) => {
+const disableRoom = async (uid1, uid2, status) => {
   try {
     if (!uid1 || !uid2) {
       console.log('Invalid param');
       return null;
     }
 
-    const response = await getRoomsBetweenUserId(uid1, uid2);
+    const response = await getRoomsBetweenUserId(uid1, uid2, status);
     if (response) {
-      const disableRooms = await Room.findByIdAndUpdate(
+      const disableRooms = await Room.findOneAndUpdate(
         {
           $or: [
             {
