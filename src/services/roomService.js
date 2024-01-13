@@ -29,7 +29,7 @@ const getRoomsBetweenUserId = async (uid1, uid2) => {
       console.log('Invalid param');
       return null;
     }
-    const response = await Room.deleteOne({
+    const response = await Room.findOne({
       $or: [
         {
           'user1.id': uid1,
