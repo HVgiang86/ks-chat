@@ -123,7 +123,15 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               console.log(`GET ACTIVE ROOM: ${userIdArray}`);
               socket.join(roomKey);
             });
+          } else if (typeof rooms === 'object') {
+            const userIdArray = [rooms.user1.id, rooms.user2.id];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+            console.log(roomKey);
+            console.log(`GET ACTIVE ROOM: ${userIdArray}`);
+            socket.join(roomKey);
           }
+
           socket.emit('login', createResponseMessage(STATUS.SUCCESS, data));
         } catch (error) {
           console.log(error);
