@@ -244,7 +244,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             await messageService.createMessage({
               sender: sender_id,
               receiver: receiver_id,
-              message: content,
+              message: message,
               roomId: roomKey,
               type: 'message'
             })
