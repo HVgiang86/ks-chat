@@ -6,7 +6,7 @@ const MessageSchema = new mongoose.Schema(
     receiver: { type: mongoose.Schema.Types.ObjectId, required: true },
     message: { type: String, required: true },
     roomId: { type: String, required: true },
-    type: { type: String, default: 'text' },
+    type: { type: String, default: 'message' },
   },
   {
     timestamps: true,

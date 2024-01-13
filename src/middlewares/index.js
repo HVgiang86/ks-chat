@@ -14,18 +14,38 @@ const {
   auth: runRedisAuth,
   zaddEmpty,
 } = require('./redis');
-const { createUser, makeUsernameKey, createPrivateRoom, sanitise, getMessages } = require('./utils');
-const { createDemoData } = require('./demo-data');
-const { PORT, SERVER_ID } = require('./config');
+const {
+  createUser,
+  makeUsernameKey,
+  createPrivateRoom,
+  sanitise,
+  getMessages
+} = require('./utils');
+const {
+  createDemoData
+} = require('./demo-data');
+const {
+  PORT,
+  SERVER_ID
+} = require('./config');
 
-const { random } = require('../utils/NameUtils');
+const {
+  random
+} = require('../utils/NameUtils');
 
-const { md5Hash } = require('../utils/StringUtils');
+const {
+  md5Hash
+} = require('../utils/StringUtils');
 var validationRegex = new RegExp('^[0-9a-fA-F]{24}$');
 const chatRequestController = require('../controller/chatRequestController');
 const roomService = require('../services/roomService');
-const { STATUS } = require('../common/Socket');
-const { createResponseMessage } = require('../utils/ResponseSocket');
+const messageService = require('../services/messageService');
+const {
+  STATUS
+} = require('../common/Socket');
+const {
+  createResponseMessage
+} = require('../utils/ResponseSocket');
 
 /** Initialize the app */
 const initializeMiddleware = async (sessionMiddleware, server) => {
@@ -52,7 +72,11 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
        *   data: object;
        * }}
        **/
-      const { serverId, type, data } = JSON.parse(message);
+      const {
+        serverId,
+        type,
+        data
+      } = JSON.parse(message);
       /** We don't handle the pub/sub messages if the server is the same */
       if (serverId === SERVER_ID) {
         return;
@@ -143,7 +167,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const checkCreate = userId > partner_id;
             if (checkCreate) {
               const randomObject = await random(id1, id2);
-              const room = await roomService.createRoom(randomObject);
+              const room = await roomService.createRoomObject(randomObject);
               console.log(room);
             }
             const userIdArray = [id1, id2];
@@ -183,7 +207,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           try {
             if (!message.sender_id || !message.receiver_id || !message.content) {
               console.log('INVALID REQUEST');
-              socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
+              socket.emit('message', createResponseMessage(STATUS.INVALID_REQUEST, {}));
               return;
             }
             const date = new Date();
@@ -217,6 +241,13 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             socket.join(roomKey);
             await zadd(roomKey, '' + message.date, messageString);
             publish('message', message);
+            await messageService.createMessage({
+              sender: sender_id,
+              receiver: receiver_id,
+              message: message.content,
+              roomId: roomKey,
+              type: 'message'
+            })
             io.to(roomKey).emit('message', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
@@ -241,7 +272,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             /** Make sure nothing illegal is sent here. */
             if (!message.sender_id || !message.receiver_id || !message.url) {
               console.log('INVALID REQUEST');
-              socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
+              socket.emit('send_image', createResponseMessage(STATUS.INVALID_REQUEST, {}));
               return;
             }
             message = {
@@ -275,10 +306,17 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             }
             await zadd(roomKey, '' + message.date, messageString);
             publish('send_image', message);
+            await messageService.createMessage({
+              sender: sender_id,
+              receiver: receiver_id,
+              message: message.url,
+              roomId: roomKey,
+              type: 'send_image'
+            })
             io.to(roomKey).emit('send_image', createResponseMessage(STATUS.SUCCESS, message));
           } catch (error) {
             console.log(error);
-            socket.emit('login', createResponseMessage(STATUS.ERROR, {}));
+            socket.emit('send_image', createResponseMessage(STATUS.ERROR, {}));
           }
         }
       );
@@ -375,17 +413,17 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         }
       );
 
-      socket.on('disconnect', async () => {
-        console.log('dis');
-        const userId = socket.request.session.user.id;
-        await srem('online_users', userId);
-        const msg = {
-          ...socket.request.session.user,
-          online: false,
-        };
-        publish('user.disconnected', msg);
-        socket.broadcast.emit('user.disconnected', msg);
-      });
+      // socket.on('disconnect', async () => {
+      //   console.log('dis');
+      //   const userId = socket.request.session.user.id;
+      //   await srem('online_users', userId);
+      //   const msg = {
+      //     ...socket.request.session.user,
+      //     online: false,
+      //   };
+      //   publish('user.disconnected', msg);
+      //   socket.broadcast.emit('user.disconnected', msg);
+      // });
     });
   }
 };
