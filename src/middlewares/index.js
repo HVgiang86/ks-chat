@@ -244,7 +244,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             await messageService.createMessage({
               sender: sender_id,
               receiver: receiver_id,
-              message: messageString,
+              message: message.content,
               roomId: roomKey,
               type: 'message'
             })
@@ -309,7 +309,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             await messageService.createMessage({
               sender: sender_id,
               receiver: receiver_id,
-              message: url,
+              message: message.url,
               roomId: roomKey,
               type: 'send_image'
             })
