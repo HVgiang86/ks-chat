@@ -23,13 +23,14 @@ const getListRoomsByUserId = async (uid) => {
   }
 };
 
-const deleteRoom = async (uid1, uid2) => {
+const getRoomsBetweenUserId = async (uid1, uid2) => {
   try {
     if (!uid1 || !uid2) {
       console.log('Invalid param');
       return null;
     }
-    const response = await Room.deleteOne({
+
+    const response = await Room.find({
       $or: [
         {
           'user1.id': uid1,
@@ -42,7 +43,41 @@ const deleteRoom = async (uid1, uid2) => {
       ],
     });
 
-    return response;
+    if (response.length > 0) {
+      return response;
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const deleteRoom = async (uid1, uid2) => {
+  try {
+    if (!uid1 || !uid2) {
+      console.log('Invalid param');
+      return null;
+    }
+
+    const response = await getRoomsBetweenUserId(uid1, uid2);
+    if (response) {
+      const deletedRooms = await Room.deleteOne({
+        $or: [
+          {
+            'user1.id': uid1,
+            'user2.id': uid2,
+          },
+          {
+            'user1.id': uid2,
+            'user2.id': uid1,
+          },
+        ],
+      });
+
+      return deletedRooms;
+    }
+    return null;
   } catch (error) {
     console.log(error);
     return null;
@@ -55,27 +90,32 @@ const disableRoom = async (uid1, uid2) => {
       console.log('Invalid param');
       return null;
     }
-    const response = await Room.findByIdAndUpdate(
-      {
-        $or: [
-          {
-            'user1.id': uid1,
-            'user2.id': uid2,
-          },
-          {
-            'user1.id': uid2,
-            'user2.id': uid1,
-          },
-        ],
-      },
-      {
-        $set: {
-          status: 'INACTIVE',
-        },
-      }
-    );
 
-    return response;
+    const response = await getRoomsBetweenUserId(uid1, uid2);
+    if (response) {
+      const disableRooms = await Room.findByIdAndUpdate(
+        {
+          $or: [
+            {
+              'user1.id': uid1,
+              'user2.id': uid2,
+            },
+            {
+              'user1.id': uid2,
+              'user2.id': uid1,
+            },
+          ],
+        },
+        {
+          $set: {
+            status: 'INACTIVE',
+          },
+        }
+      );
+
+      return disableRooms;
+    }
+    return null;
   } catch (error) {
     console.log(error);
     return null;
@@ -120,6 +160,7 @@ const createRoomObject = async (requestObject) => {
 
 module.exports = {
   getListRoomsByUserId,
+  getRoomsBetweenUserId,
   createRoom,
   deleteRoom,
   createRoomObject,
