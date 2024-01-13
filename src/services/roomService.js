@@ -7,8 +7,7 @@ const getListRoomsByUserId = async (uid) => {
     }
 
     const rooms = await Room.find({
-      $or: [
-        {
+      $or: [{
           'user1.id': uid,
         },
         {
@@ -30,8 +29,7 @@ const deleteRoom = async (uid1, uid2) => {
       return null;
     }
     const response = await Room.deleteOne({
-      $or: [
-        {
+      $or: [{
           'user1.id': uid1,
           'user2.id': uid2,
         },
@@ -71,8 +69,23 @@ const createRoom = async (uid1, uid2) => {
   }
 };
 
+const createRoomObject = async (requestObject) => {
+  try {
+    if (!requestObject) {
+      return null;
+    }
+
+    const newRoom = await Room.create(requestObject);
+    return newRoom;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 module.exports = {
   getListRoomsByUserId,
   createRoom,
   deleteRoom,
+  createRoomObject,
 };

@@ -142,8 +142,8 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             };
             const checkCreate = userId > partner_id;
             if (checkCreate) {
-              await random(id1, id2);
-              const room = await roomService.createRoom(id1, id2);
+              const randomObject = await random(id1, id2);
+              const room = await roomService.createRoom(randomObject);
               console.log(room);
             }
             const userIdArray = [id1, id2];

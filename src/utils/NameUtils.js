@@ -1,5 +1,7 @@
 // Define anonymous name code
-const { getListRoomsByUserId } = require('../services/roomService');
+const {
+  getListRoomsByUserId
+} = require('../services/roomService');
 
 /**
  *Get random name code
@@ -33,10 +35,12 @@ const random = async (id1, id2) => {
 
   return {
     user1: {
+      id: id1,
       nick_name: randomName1,
       uri: uri1,
     },
     user2: {
+      id: id2,
       nick_name: randomName2,
       uri: uri2,
     },
