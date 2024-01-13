@@ -47,6 +47,8 @@ const {
   createResponseMessage
 } = require('../utils/ResponseSocket');
 
+const ACTIVE_STATUS = 'ACTIVE';
+
 /** Initialize the app */
 const initializeMiddleware = async (sessionMiddleware, server) => {
   /** @type {SocketIO.Server} */
@@ -132,7 +134,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
             return;
           }
-          const rooms = await roomService.getListRoomsByUserId(userId);
+          const rooms = await roomService.getActiveRoomsByUserId(userId);
           if (rooms) {
             rooms.forEach((room) => {
               const userIdArray = [room.user1.id, room.user2.id];
@@ -275,26 +277,17 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               socket.emit('send_image', createResponseMessage(STATUS.INVALID_REQUEST, {}));
               return;
             }
+            const date = new Date();
+            message.date = date.getTime();
             message = {
               ...message,
               url: sanitise(message.url),
             };
-            /**
-             * The user might be set as offline if he tried to access the chat from another tab, pinging by message
-             * resets the user online status
-             */
-            // await sadd("online_users", message.from);
-            // /** We've got a new message. Store it in db, then send back to the room. */
             const messageString = JSON.stringify(message);
             const sender_id = message.sender_id.toString();
             const receiver_id = message.receiver_id.toString();
             const roomKey = 'room' + md5Hash(receiver_id + sender_id);
             console.log(roomKey);
-            // /**
-            //  * It may be possible that the room is private and new, so it won't be shown on the other
-            //  * user's screen, check if the roomKey exist. If not then broadcast message that the room is appeared
-            //  */
-            // const isPrivate = !(await exists(`${roomKey}:name`));
             const roomHasMessages = await exists(roomKey);
             if (!roomHasMessages) {
               const msg = {
@@ -331,37 +324,34 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          * }} message
          **/
         async (message) => {
-          console.log(message);
-          /**
-           * The user might be set as offline if he tried to access the chat from another tab, pinging by message
-           * resets the user online status
-           */
-          // await sadd("online_users", message.from);
-          // /** We've got a new message. Store it in db, then send back to the room. */
-          const messageString = JSON.stringify(message);
-          const sender_id = message.sender_id.toString();
-          const receiver_id = message.receiver_id.toString();
-          const roomKey = 'room' + md5Hash(receiver_id + sender_id);
-          console.log(roomKey);
-          // /**
-          //  * It may be possible that the room is private and new, so it won't be shown on the other
-          //  * user's screen, check if the roomKey exist. If not then broadcast message that the room is appeared
-          //  */
-          // const isPrivate = !(await exists(`${roomKey}:name`));
-          const roomExists = await exists(roomKey);
-          if (roomExists) {
-            const msg = {
-              id: roomKey,
-              names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
-            };
-            publish('show.room', msg);
-            socket.broadcast.emit(`show.room`, msg);
-            io.to(roomKey).emit('share_profile', message);
-            publish('share_profile', message);
-          } else {
-            console.log('Dont exits room');
+          try {
+            console.log(message);
+            const messageString = JSON.stringify(message);
+            const sender_id = message.sender_id.toString();
+            const receiver_id = message.receiver_id.toString();
+            const roomKey = 'room' + md5Hash(receiver_id + sender_id);
+            console.log(roomKey);
+            const roomExists = await exists(roomKey);
+            
+            const room = await roomService.getRoomsBetweenUserId(sender_id, receiver_id, ACTIVE_STATUS);
+            if (roomExists || room) {
+              const msg = {
+                id: roomKey,
+                names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
+              };
+              publish('show.room', msg);
+              socket.broadcast.emit(`show.room`, msg);
+              io.to(roomKey).emit('share_profile', message);
+              publish('share_profile', message);
+            } else {
+              console.log('Dont exits room');
+            }
+          } catch (error) {
+            console.log(error);
+            socket.emit('share_profile', createResponseMessage(STATUS.ERROR, {}));
           }
         }
+
       );
 
       socket.on(
@@ -376,12 +366,6 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         async (message) => {
           try {
             console.log(message);
-            /**
-             * The user might be set as offline if he tried to access the chat from another tab, pinging by message
-             * resets the user online status
-             */
-            // await sadd("online_users", message.from);
-            // /** We've got a new message. Store it in db, then send back to the room. */
             const messageString = JSON.stringify(message);
 
             const uid = message.uid.toString();
@@ -391,15 +375,10 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               partner_id: partner_id,
             };
             console.log(roomKey);
-
-            // /**
-            //  * It may be possible that the room is private and new, so it won't be shown on the other
-            //  * user's screen, check if the roomKey exist. If not then broadcast message that the room is appeared
-            //  */
-            // const isPrivate = !(await exists(`${roomKey}:name`));
             const roomExists = await exists(roomKey);
-            if (roomExists) {
-              const res = await roomService.deleteRoom(uid, partner_id);
+            const room = await roomService.getRoomsBetweenUserId(uid, partner_id, ACTIVE_STATUS);
+            if (roomExists || room) {
+              const res = await roomService.disableRoom(uid, partner_id);
               console.log(res);
               if (res.deletedCount !== 0) {
                 console.log('deleted');
@@ -409,7 +388,10 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             } else {
               console.log('Dont exits room');
             }
-          } catch (error) {}
+          } catch (error) {
+            console.log(error);
+            socket.emit('end_chat', createResponseMessage(STATUS.ERROR, {}));
+          }
         }
       );
 
