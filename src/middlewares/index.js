@@ -114,6 +114,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           const rooms = await roomService.getActiveRoomsByUserId(userId);
           console.log(`GET ACTIVE ROOM: ${rooms}`);
           if (rooms) {
+            console.log(`GET ACTIVE ROOM: len:${rooms.length}`);
             rooms.forEach((room) => {
               const userIdArray = [room.user1.id, room.user2.id];
               userIdArray.sort();
@@ -265,7 +266,11 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const messageString = JSON.stringify(message);
             const sender_id = message.sender_id.toString();
             const receiver_id = message.receiver_id.toString();
-            const roomKey = 'room' + md5Hash(receiver_id + sender_id);
+            const userIdArray = [sender_id, receiver_id];
+            userIdArray.sort();
+            console.log(userIdArray);
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+
             console.log(roomKey);
             const roomHasMessages = await exists(roomKey);
             if (!roomHasMessages) {
@@ -308,9 +313,12 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             const messageString = JSON.stringify(message);
             const sender_id = message.sender_id.toString();
             const receiver_id = message.receiver_id.toString();
-            const roomKey = 'room' + md5Hash(receiver_id + sender_id);
-            console.log(roomKey);
+
+            const userIdArray = [sender_id, receiver_id];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
             const roomExists = await exists(roomKey);
+            console.log(roomKey);
 
             const room = await roomService.getRoomsBetweenUserId(sender_id, receiver_id, ACTIVE_STATUS);
             if (roomExists || room) {
@@ -346,9 +354,14 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
             console.log(message);
             const messageString = JSON.stringify(message);
 
-            const uid = message.uid.toString();
+            const uid = message.sender_id.toString();
+            console.log('END_CHAT uid: ' + uid);
+            console.log('END_CHAT uid: ' + message.partner_id);
             const partner_id = message.partner_id.toString();
-            const roomKey = 'room' + md5Hash(uid + partner_id);
+
+            const userIdArray = [uid, partner_id];
+            userIdArray.sort();
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
             const messageEmit = {
               partner_id: partner_id,
             };

@@ -188,6 +188,7 @@ const shareProfile = async (req, res, next) => {
 
     // Check if partner exist
     const partner = await User.findById(partnerId);
+    console.log(partner);
     if (!partner) {
       return res.status(404).json({ message: 'Partner not found' });
     }
