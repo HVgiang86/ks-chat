@@ -23,6 +23,31 @@ const getListRoomsByUserId = async (uid) => {
   }
 };
 
+const getActiveRoomsByUserId = async (uid) => {
+  try {
+    if (!uid) {
+      return null;
+    }
+
+    const rooms = await Room.find({
+      $or: [
+        {
+          'user1.id': uid,
+          status: 'ACTIVE',
+        },
+        {
+          'user2.id': uid,
+          status: 'ACTIVE',
+        },
+      ],
+    });
+    return rooms;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 const getRoomsBetweenUserId = async (uid1, uid2) => {
   try {
     if (!uid1 || !uid2) {
@@ -160,6 +185,7 @@ const createRoomObject = async (requestObject) => {
 module.exports = {
   getListRoomsByUserId,
   getRoomsBetweenUserId,
+  getActiveRoomsByUserId,
   createRoom,
   deleteRoom,
   createRoomObject,
