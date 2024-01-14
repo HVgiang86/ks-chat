@@ -198,14 +198,7 @@ const unFriend = async (req, res, next) => {
     const indexCurrent = currentUser.friendList.findIndex((item) => item.toString() === partnerId);
 
     // check if my id exist list friend
-    if (indexPartner > -1) {
-      return res.status(304).json({
-        message: 'Nothing!',
-      });
-    }
-
-    // check if partner id exist in my list friend
-    if (indexCurrent > -1) {
+    if (indexPartner > -1 || indexCurrent > -1) {
       return res.status(304).json({
         message: 'Nothing!',
       });
@@ -249,7 +242,7 @@ const shareProfile = async (req, res, next) => {
     partner.publicUsers.push(uid);
 
     const currentUser = await User.findById(uid);
-    if (currentUser.publicUsers.includes(partnerId)) {
+    if (currentUser.publicUsers.find((item) => item.toString() === partnerId)) {
       currentUser.friendList.push(partnerId);
       partner.friendList.push(uid);
     }
