@@ -99,13 +99,12 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
 
       socket.on('login', async (data) => {
         try {
-          data = {
-            ...data,
-          };
-          const dataObject = JSON.stringify(data);
-          console.log(dataObject);
+          console.log(`LOGIN REQUEST:\t${data}`);
+
+          data = JSON.parse(data);
+          console.log(data);
           userId = data.uid;
-          console.log(userId);
+
           if (!userId || !validationRegex.test(userId)) {
             console.log('INVALID REQUEST');
             socket.emit('login', createResponseMessage(STATUS.INVALID_REQUEST, {}));
@@ -139,10 +138,9 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
         }
       });
 
-      let client;
-
       socket.on('request_chat', () => {
         try {
+          console.log(`REQUEST_CHAT REQUEST:\t`);
           chatRequestController.addNewRequest(userId, async (match_result) => {
             console.log('emit response');
             const id1 = match_result[0];
@@ -195,6 +193,9 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          **/
         async (message) => {
           try {
+            console.log(`MESSAGE REQUEST:\t${message}`);
+            message = JSON.parse(message);
+
             if (!message.sender_id || !message.receiver_id || !message.content) {
               console.log('INVALID REQUEST');
               socket.emit('message', createResponseMessage(STATUS.INVALID_REQUEST, {}));
@@ -258,7 +259,10 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          **/
         async (message) => {
           try {
-            console.log(message);
+            console.log(`SEND_IMAGE REQUEST:\t${message}`);
+
+            message = JSON.parse(message);
+
             /** Make sure nothing illegal is sent here. */
             if (!message.sender_id || !message.receiver_id || !message.url) {
               console.log('INVALID REQUEST');
@@ -317,8 +321,10 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          **/
         async (message) => {
           try {
-            console.log(message);
-            const messageString = JSON.stringify(message);
+            console.log(`SHARE_PROFILE REQUEST:\t${message}`);
+
+            message = JSON.parse(message);
+
             const sender_id = message.sender_id.toString();
             const receiver_id = message.receiver_id.toString();
 
@@ -359,8 +365,9 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
          **/
         async (message) => {
           try {
-            console.log(message);
-            const messageString = JSON.stringify(message);
+            console.log(`END_CHAT REQUEST:\t${message}`);
+
+            message = JSON.parse(message);
 
             const uid = message.sender_id.toString();
             console.log('END_CHAT uid: ' + uid);

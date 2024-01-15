@@ -1,7 +1,37 @@
 // Define anonymous name code
-const {
-  getListRoomsByUserId
-} = require('../services/roomService');
+const { getListRoomsByUserId } = require('../services/roomService');
+
+const getRawName = (name) => {
+  // 'anteater', 'armadillo', 'axolotl', 'badger', 'bat', 'beaver', 'alligator'
+  let rawname = '';
+  switch (name) {
+    case 'anteater':
+      rawname = 'Thú ăn kiến ẩn danh';
+      break;
+    case 'armadillo':
+      rawname = 'Thằn lằn ẩn danh';
+      break;
+    case 'bat':
+      rawname = 'Dơi ẩn danh';
+      break;
+    case 'beaver':
+      rawname = 'Hải ly ẩn danh';
+      break;
+    case 'alligator':
+      rawname = 'Cá sấu ẩn danh';
+      break;
+    case 'axolotl':
+      rawname = 'Kỳ nhông ẩn danh';
+      break;
+    case 'badger':
+      rawname = 'Lửng mật ẩn danh';
+      break;
+    default:
+      rawname = 'Lửng mật ẩn danh';
+      break;
+  }
+  return rawname;
+};
 
 /**
  *Get random name code
@@ -30,18 +60,18 @@ const random = async (id1, id2) => {
 
   console.log(`TAG: RANDOM NAME UTILS:\tname1: ${randomName1}, name2: ${randomName2}`);
 
-  const uri1 = `kschat://local/resource/anonymousavatar/${randomName1}`;
-  const uri2 = `kschat://local/resource/anonymousavatar/${randomName2}`;
+  const uri1 = `kschat://local/resource/anonymousavatar?animal=${randomName1}`;
+  const uri2 = `kschat://local/resource/anonymousavatar?animal=${randomName2}`;
 
   return {
     user1: {
       id: id1,
-      nick_name: randomName1,
+      nick_name: getRawName(randomName1),
       uri: uri1,
     },
     user2: {
       id: id2,
-      nick_name: randomName2,
+      nick_name: getRawName(randomName2),
       uri: uri2,
     },
   };
