@@ -156,6 +156,23 @@ const createRoom = async (uid1, uid2) => {
       return null;
     }
 
+    const roomExist = await Room.find({
+      $or: [
+        {
+          'user1.id': uid1,
+          'user2.id': uid2,
+        },
+        {
+          'user1.id': uid2,
+          'user2.id': uid1,
+        },
+      ],
+    });
+
+    if (roomExist) {
+      return null;
+    }
+
     const newRoom = await Room.create({
       user1: {
         id: uid1,
