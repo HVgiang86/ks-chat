@@ -29,6 +29,7 @@ const { STATUS } = require('../common/Socket');
 const { createResponseMessage } = require('../utils/ResponseSocket');
 
 const ACTIVE_STATUS = 'ACTIVE';
+const INACTIVE_STATUS = 'INACTIVE';
 
 /** Initialize the app */
 const initializeMiddleware = async (sessionMiddleware, server) => {
@@ -153,11 +154,25 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               partner_id: partner_id,
             };
             const checkCreate = userId > partner_id;
-            if (checkCreate) {
-              const randomObject = await random(id1, id2);
-              const room = await roomService.createRoomObject(randomObject);
-              console.log(room);
+            const existingActiveRoom = await roomService.getRoomsBetweenUserId(userId, partner_id, ACTIVE_STATUS);
+            console.log(`EXISTING ACTIVE Room ${existingActiveRoom}`);
+            if (existingActiveRoom) {
+              socket.emit('request_chat', createResponseMessage(STATUS.INVALID_REQUEST, {}));
+              return;
             }
+
+            const existingInactiveRoom = await roomService.getRoomsBetweenUserId(userId, partner_id, INACTIVE_STATUS);
+            console.log(`EXISTING inACTIVE Room ${existingInactiveRoom}`);
+            if (existingInactiveRoom) {
+              await roomService.enableRoom(userId, partner_id, INACTIVE_STATUS);
+            } else {
+              if (checkCreate) {
+                const randomObject = await random(id1, id2);
+                const room = await roomService.createRoomObject(randomObject);
+                console.log(room);
+              }
+            }
+
             const userIdArray = [id1, id2];
             userIdArray.sort();
             const roomKey = 'room' + md5Hash(userIdArray.join(''));
@@ -243,6 +258,72 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
           } catch (error) {
             console.log(error);
             socket.emit('message', createResponseMessage(STATUS.ERROR, {}));
+          }
+        }
+      );
+
+      socket.on(
+        'notification_message',
+        /**
+         * @param {{
+         *  sender_id : string
+         *  receiver_id : string
+         *  date: date
+         *  content: string
+         * }} message
+         **/
+        async (message) => {
+          try {
+            console.log(`MESSAGE REQUEST:\t${message}`);
+            message = JSON.parse(message);
+
+            if (!message.sender_id || !message.receiver_id || !message.content) {
+              console.log('INVALID REQUEST');
+              socket.emit('notification_message', createResponseMessage(STATUS.INVALID_REQUEST, {}));
+              return;
+            }
+            const date = new Date();
+            message.date = date.getTime();
+            /** Make sure nothing illegal is sent here. */
+            message = {
+              ...message,
+              content: sanitise(message.content),
+            };
+
+            const messageString = JSON.stringify(message);
+            console.log(messageString);
+            const sender_id = message.sender_id.toString();
+            const receiver_id = message.receiver_id.toString();
+            console.log(receiver_id);
+            console.log(sender_id);
+            const userIdArray = [sender_id, receiver_id];
+            userIdArray.sort();
+            console.log(userIdArray);
+            const roomKey = 'room' + md5Hash(userIdArray.join(''));
+            console.log(roomKey);
+            const roomHasMessages = await exists(roomKey);
+            if (!roomHasMessages) {
+              const msg = {
+                id: roomKey,
+                names: [await hmget(`user:${receiver_id}`, 'username'), await hmget(`user:${sender_id}`, 'username')],
+              };
+              publish('show.room', msg);
+              socket.broadcast.emit(`show.room`, msg);
+            }
+            socket.join(roomKey);
+            await zadd(roomKey, '' + message.date, messageString);
+            publish('message', message);
+            await messageService.createMessage({
+              sender: sender_id,
+              receiver: receiver_id,
+              message: message.content,
+              roomId: roomKey,
+              type: 'notification',
+            });
+            io.to(roomKey).emit('notification_message', createResponseMessage(STATUS.SUCCESS, message));
+          } catch (error) {
+            console.log(error);
+            socket.emit('notification_message', createResponseMessage(STATUS.ERROR, {}));
           }
         }
       );
@@ -343,6 +424,7 @@ const initializeMiddleware = async (sessionMiddleware, server) => {
               publish('show.room', msg);
               socket.broadcast.emit(`show.room`, msg);
               io.to(roomKey).emit('share_profile', message);
+              await roomService.updateRoomToShareProfile(sender_id, receiver_id, sender_id);
               publish('share_profile', message);
             } else {
               console.log('Dont exits room');

@@ -47,7 +47,7 @@ const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName, dateOfBirth, gender } = req.body;
     // Check validate
-    if (!email || !password || !firstName || !lastName || !dateOfBirth || !gender) {
+    if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({
         message: 'Missing required field!',
       });
