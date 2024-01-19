@@ -31,6 +31,34 @@ const getMe = async (req, res, next) => {
   }
 };
 
+const getFriendList = async (req, res, next) => {
+  try {
+    const { uid } = req;
+    if (!uid) {
+      return res.status(400).json({
+        message: 'Missing user id!',
+      });
+    }
+
+    const user = await User.findOne({ _id: uid }).populate('friendList');
+    if (!user) {
+      return res.status(409).json({
+        message: 'User is not exist!',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Get friendList successfully',
+      data: user.friendList,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
 const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -290,6 +318,7 @@ const unShareProfile = async (req, res, next) => {
 
 module.exports = {
   getMe,
+  getFriendList,
   getUserById,
   getAllMessage,
   updateUser,
