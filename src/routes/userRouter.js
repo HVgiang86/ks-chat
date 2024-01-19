@@ -8,6 +8,7 @@ const {
   unShareProfile,
   unFriend,
   getAllMessage,
+  getFriendList,
 } = require('../controller/userController');
 const { verifyToken } = require('../middlewares/auth');
 
@@ -15,6 +16,7 @@ const router = express.Router();
 
 router.get('/me', verifyToken, getMe);
 router.get('/get-all-message', verifyToken, getAllMessage);
+router.get('/friend-list', verifyToken, getFriendList);
 router.get('/:id', getUserById);
 
 router.put('/un-friend', verifyToken, unFriend);
